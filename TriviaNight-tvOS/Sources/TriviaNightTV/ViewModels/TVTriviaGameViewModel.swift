@@ -262,10 +262,11 @@ public final class TVTriviaGameViewModel: ObservableObject {
         switch payload {
         case .playerJoin(let player):
             if let idx = players.firstIndex(where: { $0.id == player.id || $0.controllerType == .companionPhone }) {
-                players[idx].id = player.id
-                players[idx].name = player.name
-                players[idx].avatarIcon = player.avatarIcon
-                players[idx].colorHex = player.colorHex
+                var updated = player
+                updated.score = players[idx].score
+                updated.streak = players[idx].streak
+                updated.highestStreak = players[idx].highestStreak
+                players[idx] = updated
                 audioEngine.play(.buzzerLocked)
                 showToast("👋 \(player.name) synced on iPhone!", colorHex: player.colorHex)
             } else {

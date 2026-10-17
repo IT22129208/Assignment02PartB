@@ -6,7 +6,7 @@ public enum ControllerType: String, Codable, Hashable {
 }
 
 public struct Player: Identifiable, Codable, Hashable {
-    public let id: String
+    public var id: String
     public var name: String
     public var avatarIcon: String
     public var colorHex: String
