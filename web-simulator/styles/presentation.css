@@ -1,0 +1,324 @@
+/* ==========================================================================
+   Viva Pitch Deck & Keynote Presentation Overlay Styles
+   ========================================================================== */
+
+.presentation-modal {
+  position: fixed;
+  inset: 0;
+  background: #090807;
+  z-index: 2000;
+  display: none;
+  flex-direction: column;
+  color: #fff;
+}
+
+.presentation-modal.active {
+  display: flex;
+}
+
+.deck-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 36px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.deck-meta-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.deck-logo-tag {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--accent-amber);
+  letter-spacing: 1.5px;
+}
+
+.deck-slide-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.deck-progress-bar-container {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.deck-progress-bar-fill {
+  height: 100%;
+  width: 12.5%;
+  background: linear-gradient(90deg, #8b5cf6, #f97316);
+  transition: width 0.3s ease;
+}
+
+.deck-nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.deck-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deck-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.deck-close-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.deck-close-btn:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* Slides Content Area */
+.deck-stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.deck-slide {
+  position: absolute;
+  inset: 40px;
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.deck-slide.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.slide-tag {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-amber);
+  margin-bottom: 12px;
+}
+
+.slide-title {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  background: linear-gradient(180deg, #ffffff 40%, rgba(255, 255, 255, 0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.slide-subtitle {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+  line-height: 1.5;
+  max-width: 900px;
+}
+
+/* Slide Grids & Layouts */
+.slide-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.slide-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+}
+
+.slide-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.slide-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  backdrop-filter: blur(20px);
+}
+
+.slide-card.accent-amber { border-top: 4px solid var(--accent-amber); }
+.slide-card.accent-cyan { border-top: 4px solid var(--accent-cyan); }
+.slide-card.accent-purple { border-top: 4px solid var(--accent-purple); }
+.slide-card.accent-green { border-top: 4px solid var(--accent-green); }
+
+.card-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.card-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.card-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.card-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.card-list li::before {
+  content: "✔";
+  color: var(--accent-green);
+  font-weight: 800;
+}
+
+/* Architecture Flow Diagrams */
+.arch-diagram-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 32px;
+  margin-top: 12px;
+}
+
+.arch-node {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  flex: 1;
+  text-align: center;
+}
+
+.arch-node.host {
+  border-color: var(--accent-amber);
+  box-shadow: 0 0 24px rgba(249, 115, 22, 0.25);
+}
+
+.arch-arrow {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 28px;
+}
+
+/* Modals Overlay (Substitutions) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(25px);
+  z-index: 1500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-content-card {
+  background: #14110f;
+  border: 1.5px solid var(--glass-border);
+  border-radius: 32px;
+  padding: 44px;
+  max-width: 960px;
+  width: 100%;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+}
+
+.modal-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.modal-title {
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.sub-tweak-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sub-tweak-card:hover {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: var(--accent-amber);
+  transform: translateY(-2px);
+}

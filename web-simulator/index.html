@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KitchenCrew: Interactive Multi-Chef Cook-Alongs (Apple tvOS 10-Foot Experience)</title>
+  <meta name="description" content="KitchenCrew is a synchronized multi-user cooking masterclass application designed for the living room Apple TV 4K with multi-device iPhone/iPad synchronization, voice-activated step progression, and split-screen multi-angle streaming.">
+  <link rel="stylesheet" href="styles/tvos-core.css">
+  <link rel="stylesheet" href="styles/remote.css">
+  <link rel="stylesheet" href="styles/companion.css">
+  <link rel="stylesheet" href="styles/presentation.css">
+</head>
+<body>
+
+  <!-- Floating 10-Foot Toast Banner -->
+  <div id="tv-toast-banner" class="tv-toast-banner">
+    <span class="toast-dot" style="background: var(--accent-amber)"></span>
+    <span class="toast-text">KitchenCrew Conductor Initialized</span>
+  </div>
+
+  <!-- Main 10-Foot Screen Layout -->
+  <main class="tv-screen-container">
+    
+    <!-- Top Master Conductor Header -->
+    <header class="tv-header">
+      <div class="brand-section">
+        <div class="brand-logo-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+          </svg>
+        </div>
+        <div class="brand-meta">
+          <div class="brand-tag-row">
+            <span class="tag-app">KitchenCrew tvOS</span>
+            <span class="tag-divider">•</span>
+            <span id="chef-credit-label" class="tag-chef">Chef Laurent Dumas (3★ Michelin)</span>
+          </div>
+          <h1 id="recipe-main-title" class="recipe-header-title">Pan-Seared Day-Boat Scallops</h1>
+        </div>
+      </div>
+
+      <div class="header-actions-row">
+        <!-- Voice Conductor Waveform Indicator -->
+        <div id="voice-indicator-pill" class="voice-pill focusable" onclick="window.Voice.toggle()" title="Click to toggle Kitchen Voice Conductor (Speech Recognition)">
+          <div class="voice-mic-icon">🎙️</div>
+          <div id="voice-waveform" class="waveform-bars">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+          <span id="voice-transcript-label" class="voice-text-label">Voice Conductor Ready ("Hey Siri, next step")</span>
+        </div>
+
+        <!-- Viva & Pitch Deck Button -->
+        <button class="viva-pitch-btn focusable" onclick="window.Presentation.open()">
+          <span>🎓 Viva Pitch & Slides</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Master Recipe Progress Line -->
+    <div class="master-progress-track">
+      <div id="master-progress-fill" class="master-progress-fill"></div>
+    </div>
+
+    <!-- Main Workstage (Left 60% Video / Right 40% Step Card) -->
+    <section class="tv-main-stage">
+      
+      <!-- Video Section (Left) -->
+      <div class="video-section">
+        <div id="video-viewport-container" class="video-viewport-container">
+          <!-- Main Single-Angle Stream -->
+          <img id="main-video-feed" class="video-feed-image" src="assets/chef_wide.jpg" alt="Chef Cooking Live Stream">
+          
+          <!-- Split Screen Dual-Angle Feeds -->
+          <div class="split-view-container">
+            <div class="split-panel">
+              <img src="assets/chef_wide.jpg" alt="Chef Island Wide">
+              <div class="split-tag">CHEF ISLAND (WIDE)</div>
+            </div>
+            <div class="split-panel">
+              <img src="assets/pan_macro.jpg" alt="Pan Sizzle Macro">
+              <div class="split-tag">PAN SIZZLE (MACRO)</div>
+            </div>
+          </div>
+
+          <div class="video-overlay-gradient"></div>
+
+          <!-- Video HUD Badges -->
+          <div class="video-hud-top">
+            <div class="live-badge">
+              <span class="live-dot"></span>
+              <span>4K MULTI-CAM LIVE</span>
+            </div>
+            <div class="sync-badge">HLS LOW-LATENCY (0.02s)</div>
+          </div>
+
+          <div id="active-angle-label" class="active-angle-watermark">
+            CHEF ISLAND (WIDE)
+          </div>
+        </div>
+
+        <!-- Camera Angle Switcher (tvOS Focusable Row) -->
+        <div id="cam-angle-switcher" class="cam-angle-switcher">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Quick Voice Test Commands (Clickable for instant demonstration) -->
+        <div class="voice-test-bar">
+          <span>🎤 Voice Test Simulator:</span>
+          <button class="voice-chip" onclick="window.Voice.simulateCommand('next step')">"Next step"</button>
+          <button class="voice-chip" onclick="window.Voice.simulateCommand('switch to pan angle')">"Switch to pan angle"</button>
+          <button class="voice-chip" onclick="window.Voice.simulateCommand('split screen')">"Split screen"</button>
+          <button class="voice-chip" onclick="window.Voice.simulateCommand('set timer for 90 seconds')">"Set timer for 90 seconds"</button>
+          <button class="voice-chip" onclick="window.Voice.simulateCommand('show substitutions')">"Show substitutions"</button>
+        </div>
+      </div>
+
+      <!-- Step Instructions Card (Right Side 10-Foot Legibility) -->
+      <article class="step-card">
+        <div>
+          <div class="step-meta-badges">
+            <span id="step-counter-badge" class="step-counter-badge">STEP 1 OF 6</span>
+            <span id="step-station-badge" class="step-station-badge">PREP STATION (CHEF ALEX)</span>
+          </div>
+
+          <h2 id="step-title-text" class="step-title-text">Mise en Place & Scallop Preparation</h2>
+          <p id="step-instruction-text" class="step-instruction-text">
+            Chef Alex: Pat sea scallops completely dry on both sides with absorbent paper towels. Season generously with sea salt. Chef Sarah: Brunoise dice French shallots and strip fresh thyme leaves.
+          </p>
+
+          <!-- Callout Box (Warning or Chef Tip) -->
+          <div id="step-callout-box" class="step-callout tip">
+            <div class="callout-icon">💡</div>
+            <div class="callout-body">
+              <div class="callout-title">MICHELIN CHEF TIP</div>
+              <div class="callout-text">Moisture prevents the Maillard reaction. Scallops must be bone-dry for a glassy golden crust.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remote Action Buttons -->
+        <div class="step-actions-row">
+          <button id="btn-prev-step" class="tv-btn tv-btn-secondary focusable" onclick="window.App.prevStep()">
+            ◀ Back
+          </button>
+          <button id="btn-next-step" class="tv-btn tv-btn-primary focusable default-focus" onclick="window.App.nextStep()">
+            <span>Step Complete (Next)</span> ➔
+          </button>
+          <button id="btn-quick-subs" class="tv-btn tv-btn-icon-only focusable" onclick="window.App.openSubstitutionsModal()" title="Quick Substitutions & Dietary Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            </svg>
+          </button>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Bottom Conductor Bar (Sub-stations & Oversized 10-Foot Timers) -->
+    <footer class="tv-bottom-bar">
+      <!-- Connected Household Sub-station Status Strip -->
+      <div id="substation-status-strip" class="substation-status-strip">
+        <!-- Rendered dynamically via sync-bus.js -->
+      </div>
+
+      <!-- Oversized 10-Foot Timers (Readable from 15ft across a kitchen) -->
+      <div id="oversized-timers-container" class="oversized-timers-container">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Virtual Siri Remote 2nd Gen Floating Controller -->
+  <div class="remote-widget-container">
+    <div class="remote-toggle-pill" onclick="document.getElementById('virtual-siri-remote').classList.toggle('minimized')">
+      <span>🕹️ Toggle Siri Remote</span>
+    </div>
+
+    <aside id="virtual-siri-remote" class="siri-remote-body">
+      <div class="remote-mic-pinhole"></div>
+
+      <!-- D-Pad Clickpad Wheel -->
+      <div class="remote-clickpad">
+        <button id="remote-up" class="clickpad-dir-btn dir-up" title="Focus Up">▲</button>
+        <button id="remote-down" class="clickpad-dir-btn dir-down" title="Focus Down">▼</button>
+        <button id="remote-left" class="clickpad-dir-btn dir-left" title="Focus Left">◀</button>
+        <button id="remote-right" class="clickpad-dir-btn dir-right" title="Focus Right">▶</button>
+        <button id="remote-center" class="clickpad-center-btn" title="Clickpad Select"></button>
+      </div>
+
+      <!-- Remote Buttons Grid -->
+      <div class="remote-buttons-grid">
+        <button id="remote-back" class="remote-pill-btn" title="Back (Previous Step / Close Modal)">‹</button>
+        <button id="remote-play" class="remote-pill-btn" title="Play / Pause Timer">⏯</button>
+        <button id="remote-mic" class="remote-pill-btn remote-mic-btn" title="Siri Voice Input">🎙️</button>
+        <button class="remote-pill-btn" onclick="window.App.openSubstitutionsModal()" title="Quick Menu">⚙️</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Household Companion Devices Toggle Tab -->
+  <button class="companion-toggle-tab" onclick="document.getElementById('companion-dock-drawer').classList.toggle('open')">
+    <span>📱 Household Companion Stations (iPhone/iPad)</span>
+  </button>
+
+  <!-- Multi-Device Companion Dock Drawer (Simulated Mobile Devices) -->
+  <aside id="companion-dock-drawer" class="companion-dock-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title-row">
+        <span>📱</span>
+        <h3 class="drawer-title">Connected Kitchen Stations</h3>
+      </div>
+      <button class="drawer-close-btn" onclick="document.getElementById('companion-dock-drawer').classList.remove('open')">✕</button>
+    </div>
+
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.4;">
+      Household members join the session from their personal devices. Checking off items below syncs live with the Apple TV in real time via Apple Multipeer Connectivity.
+    </p>
+
+    <div id="companion-dock-container" class="companion-cards-stack">
+      <!-- Populated via sync-bus.js -->
+    </div>
+  </aside>
+
+  <!-- Quick Substitutions & Dietary Modal -->
+  <div id="substitutions-modal" class="modal-overlay">
+    <div class="modal-content-card">
+      <div class="modal-header-row">
+        <div>
+          <span style="font-size: 12px; font-weight: 800; color: var(--accent-amber); letter-spacing: 1px;">SIRI REMOTE CLICKPAD MENU</span>
+          <h2 class="modal-title">Smart Culinary Customizer</h2>
+        </div>
+        <button class="tv-btn tv-btn-secondary" onclick="window.App.closeSubstitutionsModal()">Close (Back on Remote)</button>
+      </div>
+
+      <div class="modal-grid">
+        <div class="sub-tweak-card" onclick="window.App.applySubstitution('Heavy Cream', 'Oat Cooking Cream & Cashew Fat')">
+          <div style="font-size: 11px; font-weight: 800; color: #10b981; margin-bottom: 6px;">DIETARY: DAIRY-FREE</div>
+          <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Dairy-Free Mousseline</h4>
+          <p style="font-size: 13px; color: var(--text-secondary);">Substitute heavy cream & cultured butter with oat cooking cream and blended cashew fat for the cauliflower puree.</p>
+        </div>
+
+        <div class="sub-tweak-card" onclick="window.App.applySubstitution('Sea Scallops', 'King Oyster Mushroom rounds')">
+          <div style="font-size: 11px; font-weight: 800; color: #38bdf8; margin-bottom: 6px;">ALLERGEN SAFE: SHELLFISH-FREE</div>
+          <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Mushroom Medallions</h4>
+          <p style="font-size: 13px; color: var(--text-secondary);">Score thick rounds of king oyster mushroom stems in a diamond lattice pattern. Searing time remains 90 seconds.</p>
+        </div>
+
+        <div class="sub-tweak-card" onclick="window.App.applySubstitution('Pancetta', 'Crispy Smoked Shiitake Bacon')">
+          <div style="font-size: 11px; font-weight: 800; color: #fbbf24; margin-bottom: 6px;">DIETARY: VEGETARIAN / KOSHER</div>
+          <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Smoked Shiitake Lardons</h4>
+          <p style="font-size: 13px; color: var(--text-secondary);">Thinly sliced shiitake caps baked with tamari and smoked paprika replace pork pancetta with identical crunch.</p>
+        </div>
+
+        <div class="sub-tweak-card" onclick="window.App.applySubstitution('Units', 'Imperial (oz, °F)')">
+          <div style="font-size: 11px; font-weight: 800; color: #a855f7; margin-bottom: 6px;">DISPLAY PREFERENCE</div>
+          <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">Toggle Metric / Imperial</h4>
+          <p style="font-size: 13px; color: var(--text-secondary);">Switch ingredient weights between Grams and Ounces, and temperatures between Celsius and Fahrenheit.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Viva Pitch & Presentation Mode Modal -->
+  <div id="presentation-modal" class="presentation-modal">
+    <div class="deck-top-bar">
+      <div class="deck-meta-info">
+        <span class="deck-logo-tag">KITCHENCREW VIVA PITCH</span>
+        <span id="deck-counter" class="deck-slide-counter">SLIDE 1 OF 8</span>
+      </div>
+
+      <div class="deck-nav-buttons">
+        <button class="deck-btn" onclick="window.Presentation.prev()">◀ Previous Slide</button>
+        <button class="deck-btn" onclick="window.Presentation.next()">Next Slide ▶</button>
+        <button class="deck-btn deck-close-btn" onclick="window.Presentation.close()">Return to Live tvOS Simulator ✕</button>
+      </div>
+    </div>
+
+    <div class="deck-progress-bar-container">
+      <div id="deck-progress-bar" class="deck-progress-bar-fill"></div>
+    </div>
+
+    <div class="deck-stage">
+      
+      <!-- Slide 1: Concept & Title -->
+      <div class="deck-slide active">
+        <span class="slide-tag">1. Innovative Concept Development</span>
+        <h2 class="slide-title">KitchenCrew: The 10-Foot Culinary Conductor</h2>
+        <p class="slide-subtitle">
+          Transforming the living room Apple TV into a synchronized, multi-chef kitchen command center with hands-free voice control and multi-device station delegation.
+        </p>
+        <div class="slide-grid-3">
+          <div class="slide-card accent-amber">
+            <div class="card-icon">📺</div>
+            <h3 class="card-title">Living Room TV Hub</h3>
+            <p class="card-body">Replaces greasy phone screens propped on floury countertops with high-visibility, 4K multi-cam instruction visible from 15+ feet.</p>
+          </div>
+          <div class="slide-card accent-cyan">
+            <div class="card-icon">📱</div>
+            <h3 class="card-title">Multi-Device Sub-Stations</h3>
+            <p class="card-body">Family or roommates join as sub-stations (Prep, Sauté, Oven) via their iPhones/iPads with customized synchronized checklists.</p>
+          </div>
+          <div class="slide-card accent-purple">
+            <div class="card-icon">🎙️</div>
+            <h3 class="card-title">Hands-Free Siri Voice</h3>
+            <p class="card-body">Custom speech recognition intents tuned for noisy kitchen environments eliminate the need to ever touch a remote with messy hands.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Market Problem & Differentiation -->
+      <div class="deck-slide">
+        <span class="slide-tag">1. Concept & Market Gap</span>
+        <h2 class="slide-title">Why Existing Apps Fail in the Kitchen</h2>
+        <p class="slide-subtitle">
+          Analyzing Tasty, NYT Cooking, and MasterClass vs the KitchenCrew 10-Foot Paradigm.
+        </p>
+        <div class="slide-grid-3">
+          <div class="slide-card">
+            <div class="card-icon">📱</div>
+            <h3 class="card-title">Tasty / NYT Cooking</h3>
+            <p class="card-body">Static, single-user mobile apps. Forcing a cook to tap grease-covered screens with oily fingers while squinting at 6-inch displays.</p>
+          </div>
+          <div class="slide-card">
+            <div class="card-icon">🎬</div>
+            <h3 class="card-title">MasterClass</h3>
+            <p class="card-body">Cinematic production value, but passive video watching with zero interactive synchronization, no kitchen timers, and no multi-user teamwork.</p>
+          </div>
+          <div class="slide-card accent-amber">
+            <div class="card-icon">🌟</div>
+            <h3 class="card-title">KitchenCrew Innovation</h3>
+            <p class="card-body">True distributed cooking OS: Apple TV directs the entire household with real-time station delegation, shared timers, and multi-cam playback.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Multi-User & Multi-Device Sync Architecture -->
+      <div class="deck-slide">
+        <span class="slide-tag">2 & 4. Technical Architecture</span>
+        <h2 class="slide-title">Zero-Latency Local Mesh Synchronization</h2>
+        <p class="slide-subtitle">
+          Apple Multipeer Connectivity + CloudKit fallback guarantees synchronization even if household Wi-Fi drops.
+        </p>
+        <div class="arch-diagram-row">
+          <div class="arch-node host">
+            <div style="font-size: 28px;">📺</div>
+            <h4 style="font-size: 18px; font-weight: 800; color: var(--accent-amber);">Apple TV 4K (Host Conductor)</h4>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">MCNearbyServiceAdvertiser • Master Step Clock • HLS Video Sync • Oversized Timers</p>
+          </div>
+          <div class="arch-arrow">⮂</div>
+          <div class="arch-node">
+            <div style="font-size: 28px;">📱</div>
+            <h4 style="font-size: 18px; font-weight: 800; color: var(--accent-cyan);">Chef Alex (Prep Station)</h4>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">iPad Pro • Mise-en-place checklist • Vibration alerts • Dependency signals</p>
+          </div>
+          <div class="arch-arrow">⮂</div>
+          <div class="arch-node">
+            <div style="font-size: 28px;">📱</div>
+            <h4 style="font-size: 18px; font-weight: 800; color: var(--accent-purple);">Chef Sarah (Sauté Station)</h4>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">iPhone 15 Pro • Searing timers • Temperature cues • Prerequisite gating</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4: Voice-Controlled Navigation in Loud Kitchens -->
+      <div class="deck-slide">
+        <span class="slide-tag">2 & 4. Voice Processing Engine</span>
+        <h2 class="slide-title">Acoustic Engineering for Kitchen Noise</h2>
+        <p class="slide-subtitle">
+          Handling sizzling pans, blender whirs, and exhaust hoods with Apple Speech Framework & SiriKit.
+        </p>
+        <div class="slide-grid-3">
+          <div class="slide-card accent-cyan">
+            <div class="card-icon">🎛️</div>
+            <h3 class="card-title">Acoustic Noise Suppression</h3>
+            <p class="card-body">Beamforming microphone array on Apple TV / HomePod / Siri Remote isolates near-field vocal harmonics from high-frequency oil sizzle.</p>
+          </div>
+          <div class="slide-card accent-amber">
+            <div class="card-icon">🧠</div>
+            <h3 class="card-title">Culinary Contextual LM</h3>
+            <p class="card-body">Speech recognition uses custom domain language models primed for culinary terms ("arrosé", "sear", "scallops", "blanch", "reduction").</p>
+          </div>
+          <div class="slide-card accent-green">
+            <div class="card-icon">⚡</div>
+            <h3 class="card-title">Deterministic Intent Parsing</h3>
+            <p class="card-body">Zero-latency local neural NLP routes speech commands directly to timer dispatch, step progression, and camera switching without cloud latency.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5: Split-Screen Multi-Angle Playback -->
+      <div class="deck-slide">
+        <span class="slide-tag">2. Video Engineering</span>
+        <h2 class="slide-title">Synchronized Multi-Angle 4K Playback</h2>
+        <p class="slide-subtitle">
+          Toggle between Chef Wide, Macro Pan Sizzle, and Overhead Plating with seamless HLS timestamp synchronization.
+        </p>
+        <div class="slide-grid-2">
+          <div class="slide-card accent-amber">
+            <div class="card-icon">🎥</div>
+            <h3 class="card-title">Dynamic Camera Delegation</h3>
+            <p class="card-body">Each recipe step has a recommended camera perspective. When Step 4 ("The 90-Second Sear") triggers, tvOS automatically switches focus to the macro pan angle so the home cook sees the precise bubble density and Maillard coloration.</p>
+          </div>
+          <div class="slide-card accent-purple">
+            <div class="card-icon">⚡</div>
+            <h3 class="card-title">Frame-Accurate HLS Sync</h3>
+            <p class="card-body">Using Apple AVFoundation's <code>AVPlayerItemTimeOffset</code>, all video tracks remain locked to an identical timeline clock, enabling instantaneous split-screen rendering without stream buffering or video drift.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 6: 10-Foot UI & Siri Remote Focus Engine -->
+      <div class="deck-slide">
+        <span class="slide-tag">3. UX & Interaction Design</span>
+        <h2 class="slide-title">10-Foot Ergonomics & Focus Engine</h2>
+        <p class="slide-subtitle">
+          Designed specifically for living room viewing distance with high contrast and zero touch dependency.
+        </p>
+        <div class="slide-grid-3">
+          <div class="slide-card">
+            <div class="card-icon">👁️</div>
+            <h3 class="card-title">15-Foot Legibility</h3>
+            <p class="card-body">High-contrast 44pt+ monospace timer digits, glowing radial progress dials, and bold step instructions readable across the counter.</p>
+          </div>
+          <div class="slide-card">
+            <div class="card-icon">🕹️</div>
+            <h3 class="card-title">Apple Focus Engine</h3>
+            <p class="card-body">Strict adherence to tvOS focus guidelines: spatial 2D navigation, specular sheen highlights, and 3D card tilt parallax on remote movement.</p>
+          </div>
+          <div class="slide-card">
+            <div class="card-icon">⚡</div>
+            <h3 class="card-title">Siri Remote Gestures</h3>
+            <p class="card-body">Simple trackpad swipes navigate steps, while clicking triggers the quick culinary tweaks menu (substitutions, metric/imperial scaling).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 7: Business Model & Go-to-Market -->
+      <div class="deck-slide">
+        <span class="slide-tag">5. Business Model & GTM Strategy</span>
+        <h2 class="slide-title">Monetization & Ecosystem Expansion</h2>
+        <p class="slide-subtitle">
+          Sustainable revenue streams tailored for smart-home adopters and culinary enthusiasts.
+        </p>
+        <div class="slide-grid-3">
+          <div class="slide-card accent-amber">
+            <div class="card-icon">💎</div>
+            <h3 class="card-title">KitchenCrew Premium</h3>
+            <p class="card-body">$12.99/mo subscription granting exclusive masterclasses from 3★ Michelin chefs, personalized meal-planning, and dynamic grocery ordering.</p>
+          </div>
+          <div class="slide-card accent-cyan">
+            <div class="card-icon">🍳</div>
+            <h3 class="card-title">Smart Appliance Partnerships</h3>
+            <p class="card-body">Integration with Apple HomeKit, Breville Joule, and smart induction cooktops to automatically set pan temperatures based on step progression.</p>
+          </div>
+          <div class="slide-card accent-purple">
+            <div class="card-icon">🤝</div>
+            <h3 class="card-title">Creator Ecosystem</h3>
+            <p class="card-body">Revenue-sharing channels for food creators and YouTube chefs to launch interactive tvOS masterclass seasons with zero overhead.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 8: Viva Q&A & Technical Defense -->
+      <div class="deck-slide">
+        <span class="slide-tag">5. Technical Defense & Viva Q&A</span>
+        <h2 class="slide-title">Exam Defense & Architectural Trade-offs</h2>
+        <p class="slide-subtitle">
+          Key questions the examiners will ask and our validated technical defenses.
+        </p>
+        <div class="slide-grid-2">
+          <div class="slide-card">
+            <h4 style="font-size: 16px; font-weight: 800; color: var(--accent-amber);">Q: Why tvOS instead of an iPad stand on the counter?</h4>
+            <p class="card-body">Counter space is messy, wet, and hazardous. Tablets get splashed with oil, flour, and sauce. The living room or kitchen TV offers an unencumbered 10-foot communal screen visible to everyone in the room without risking delicate electronics.</p>
+          </div>
+          <div class="slide-card">
+            <h4 style="font-size: 16px; font-weight: 800; color: var(--accent-cyan);">Q: How do you handle network drops during live cooking?</h4>
+            <p class="card-body">Apple Multipeer Connectivity establishes an ad-hoc Wi-Fi Direct and Bluetooth Low Energy mesh between devices. It does not require active internet connection after recipe assets are cached, guaranteeing zero dropout during high-heat pan searing.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/recipe-data.js"></script>
+  <script src="js/sfx.js"></script>
+  <script src="js/focus-engine.js"></script>
+  <script src="js/multi-angle.js"></script>
+  <script src="js/voice-conductor.js"></script>
+  <script src="js/sync-bus.js"></script>
+  <script src="js/presentation.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

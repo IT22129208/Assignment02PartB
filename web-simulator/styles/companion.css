@@ -1,0 +1,274 @@
+/* ==========================================================================
+   Multi-Device Companion Dock & Simulated Mobile Screen Styling
+   ========================================================================== */
+
+.companion-dock-drawer {
+  position: fixed;
+  top: 0;
+  right: -560px;
+  width: 540px;
+  height: 100vh;
+  background: rgba(18, 15, 13, 0.96);
+  backdrop-filter: blur(40px);
+  border-left: 1px solid var(--glass-border);
+  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.8);
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.companion-dock-drawer.open {
+  right: 0;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drawer-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drawer-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.drawer-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.companion-toggle-tab {
+  position: fixed;
+  bottom: 24px;
+  left: 28px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(30, 25, 20, 0.9);
+  border: 1px solid var(--glass-border);
+  padding: 10px 20px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.companion-toggle-tab:hover {
+  background: var(--accent-cyan);
+  color: #000;
+}
+
+/* Companion Phone Screen Cards */
+.companion-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.companion-device-card {
+  background: #000;
+  border-radius: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.device-notch {
+  width: 90px;
+  height: 18px;
+  background: #111;
+  border-radius: 12px;
+  margin: -10px auto 4px auto;
+}
+
+.device-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.device-sync-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #4ade80;
+  font-size: 11px;
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: #4ade80;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #4ade80;
+}
+
+.device-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.device-user-name {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.device-model {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.device-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 8px;
+}
+
+.device-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.device-task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.device-task-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.device-task-item.completed {
+  opacity: 0.6;
+}
+
+.task-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.task-checkbox.checked {
+  background: var(--device-accent);
+  border-color: var(--device-accent);
+  color: #000;
+}
+
+.task-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.device-task-item.completed .task-label {
+  text-decoration: line-through;
+}
+
+.device-footer-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.companion-quick-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.companion-quick-btn.sub {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
