@@ -577,10 +577,12 @@ class TriviaNightApp {
       <div class="lobby-screen">
         <div class="lobby-header">
           <div class="lobby-brand-row">
-            <span class="pub-icon">🍻</span>
-            <h1 class="lobby-title">TRIVIANIGHT TV</h1>
+            <img src="assets/logo.jpg" alt="TriviaNight TV Emblem" class="lobby-emblem-img" />
+            <div class="lobby-title-block">
+              <h1 class="lobby-title">TRIVIANIGHT TV</h1>
+              <p class="lobby-tagline">THE LIVING ROOM PUB QUIZ • MULTI-USER TVOS EXPERIENCE</p>
+            </div>
           </div>
-          <p class="lobby-tagline">THE LIVING ROOM PUB QUIZ • MULTI-USER TVOS EXPERIENCE</p>
         </div>
 
         <div class="lobby-columns">

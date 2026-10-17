@@ -49,12 +49,14 @@ public struct CompanionBuzzerView: View {
     private var connectionHeader: some View {
         HStack {
             HStack(spacing: 8) {
+                TriviaLogoBadge(size: 22)
+                
                 Circle()
                     .fill(viewModel.isConnectedToTV ? Color.green : Color.orange)
-                    .frame(width: 10, height: 10)
+                    .frame(width: 8, height: 8)
                 
                 Text(viewModel.isConnectedToTV ? "Connected to Apple TV 4K" : "Searching...")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.white)
             }
             
@@ -74,8 +76,10 @@ public struct CompanionBuzzerView: View {
     
     @ViewBuilder
     private var joinProfileForm: some View {
-        VStack(spacing: 22) {
-            VStack(spacing: 6) {
+        VStack(spacing: 20) {
+            VStack(spacing: 8) {
+                TriviaLogoBadge(size: 64)
+                
                 Text("Join Trivia Night")
                     .font(.system(size: 26, weight: .black, design: .rounded))
                     .foregroundColor(.white)
@@ -85,7 +89,7 @@ public struct CompanionBuzzerView: View {
                     .foregroundColor(.white.opacity(0.6))
                     .multilineTextAlignment(.center)
             }
-            .padding(.top, 8)
+            .padding(.top, 4)
             
             // Name Input Field
             VStack(alignment: .leading, spacing: 8) {

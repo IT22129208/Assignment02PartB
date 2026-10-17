@@ -12,10 +12,8 @@ public struct LobbyView: View {
         VStack(spacing: 36) {
             // Header Section
             VStack(spacing: 12) {
-                HStack(spacing: 16) {
-                    Image(systemName: "sparkles.tv.fill")
-                        .font(.system(size: 48, weight: .bold))
-                        .foregroundColor(.yellow)
+                HStack(spacing: 20) {
+                    TriviaLogoBadge(size: 68)
                     
                     Text("TRIVIANIGHT TV")
                         .font(.system(size: 46, weight: .black, design: .rounded))

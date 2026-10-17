@@ -72,6 +72,23 @@ body {
   font-size: 28px;
 }
 
+.brand-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+  object-fit: cover;
+}
+
+.sim-brand-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  object-fit: cover;
+}
+
 .brand-title {
   font-size: 20px;
   font-weight: 900;
@@ -208,7 +225,26 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 22px;
+}
+
+.lobby-emblem-img {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 35px rgba(245, 158, 11, 0.4), 0 0 60px rgba(56, 189, 248, 0.3);
+  object-fit: cover;
+  animation: logo-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logo-glow {
+  0% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), 0 0 40px rgba(56, 189, 248, 0.2); }
+  100% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.6), 0 0 70px rgba(56, 189, 248, 0.4); }
+}
+
+.lobby-title-block {
+  text-align: left;
 }
 
 .pub-icon {
