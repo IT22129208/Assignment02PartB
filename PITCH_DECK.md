@@ -1,127 +1,85 @@
-# KitchenCrew: Interactive Multi-Chef Cook-Alongs
-## Viva & Pitch Presentation Deck (Academic & Industry Defense)
+# TriviaNight TV: Living Room Pub Quiz
+## Final Presentation & Pitch Deck
 
 ---
 
-### Executive Slide Index
-1. **Slide 1: Innovative Concept Development & Title**
-2. **Slide 2: Problem Statement: The Countertop Chaos vs. The Living Room Hub**
-3. **Slide 3: Market Differentiation (Tasty / NYT Cooking / MasterClass Gap)**
-4. **Slide 4: Advanced Prototype Features (tvOS & Multi-Device Synchronization)**
-5. **Slide 5: Voice-Controlled Hands-Free Navigation in Loud Kitchens**
-6. **Slide 6: Split-Screen Multi-Angle 4K Playback (Wide vs. Sizzle Macro)**
-7. **Slide 7: 10-Foot UI & Siri Remote Focus Engine Design**
-8. **Slide 8: Technical Implementation & Apple Networking Architecture**
-9. **Slide 9: Business Model, KitchenCrew Premium & Go-To-Market**
-10. **Slide 10: Viva Technical Defense & Examiner Q&A Guide**
+### Slide 1: Title & Value Proposition
+* **Project Name**: TriviaNight TV — The Living Room Pub Quiz
+* **Target Platform**: Apple tvOS 17+ (Apple TV 4K) & iOS 17+ (iPhone Companion)
+* **Tagline**: Bringing traditional pub-style trivia straight to the living room couch.
+* **Core Problem**:
+  - Traditional board games (Trivial Pursuit, Cranium) require physical pieces, scorepads, and tedious rule explanations.
+  - Mobile trivia apps (Trivia Crack, HQ) isolate players into staring down at individual smartphone screens, eliminating communal living-room laughter.
+* **Our Solution**:
+  - A lightweight, native SwiftUI tvOS trivia experience where everyone looks at the big 4K screen, using Siri Remotes and paired iPhones as fast-paced buzzers.
 
 ---
 
-### Slide 1: Title & Vision
-* **Title**: KitchenCrew: Interactive Multi-Chef Cook-Alongs
-* **Tagline**: The 10-Foot Culinary Conductor for the Living Room Apple TV
-* **Presenter Context**: Final Viva / Academic Capstone & Venture Pitch
-* **Core Premise**: Cooking is inherently communal, yet digital recipe technology has remained trapped on solitary, fragile, grease-covered 6-inch phone screens. KitchenCrew elevates the television into the "Head Chef Conductor" of the home, synchronizing multiple cooks across personal Apple devices with hands-free voice automation.
+### Slide 2: 25% Concept Innovation — Living Room Multi-User Mechanics
+* **Simultaneous Multi-Input Architecture**:
+  - Directly satisfies the tvOS multi-user requirement by letting up to 8 living room participants compete concurrently.
+  - Host plays with the Apple TV Siri Remote clickpad; guests buzz in with paired iPhones/iPads over local peer-to-peer Multipeer Connectivity without needing room accounts or internet passwords.
+* **High-Stakes Speed Scoring**:
+  - Points reward reflex speed: answering in the first 2 seconds awards up to +500 speed bonus points.
+* **Dynamic Streak Multipliers**:
+  - Consecutive correct answers ignite visual flame badges in the living room HUD and stack point multipliers from 1.25x up to 2.0x.
+* **Zero Barrier to Entry**:
+  - Automatic Bonjour local room discovery (`PUB-4K`) allows party guests to connect and buzz in within 5 seconds.
 
 ---
 
-### Slide 2: Problem Statement: Countertop Chaos
-* **The Countertop Reality**:
-  - Phones and tablets propped against wine bottles or olive oil containers.
-  - Constant flour, raw poultry fluids, and oil splatter ruining glass displays.
-  - Squinting from across the kitchen counter to check timer durations or next steps.
-  - "Cook-along" friction: Two or more people attempting to prepare a meal together constantly collide, asking *"What temperature did he say?"* or *"Who is cutting the onions?"*.
-* **The Opportunity**: The living room or open-plan kitchen TV is 55–85 inches of high-resolution screen real estate, viewable by everyone in the room from 15+ feet away without touching any electronics.
+### Slide 3: 25% Prototype Functionality — End-to-End Game Lifecycle
+* **1. Living Room Lobby (`LobbyView`) & Mobile Join**:
+  - Prominent 64pt room code (`PUB-4K`), live player avatar roster, controller type badges, and host start action.
+  - **Live Mobile Naming**: Mobile companion players input their nickname and choose their avatar/color on iPhone prior to starting, which immediately reflects on the TV screen.
+* **2. Category Select Grid (`CategorySelectView`)**:
+  - 7 distinct themed packs: *Cinema & Hollywood*, *Tech & Innovation*, *Mathematics & Logic*, *Music & Pop Hits*, *Living Room Pub Trivia*, *World History & Wonders*, *Gaming & Pop Culture*.
+* **3. Question & Live Timer Board (`QuestionTimerBoardView`)**:
+  - 36pt high-contrast typography readable from 15 feet.
+  - 15-second animated countdown progress bar shifting from green to amber to pulsing urgent red.
+  - 4 colored multiple-choice cards (A: Rose, B: Sky, C: Amber, D: Violet).
+  - Player lock-in avatars pop up on cards in real-time as buzzers are pressed.
+* **4. Dramatic Answer Reveal (`AnswerRevealView`)**:
+  - Glowing emerald green banner for correct answers, "Trivia Curio" educational facts, and itemized speed bonuses.
+* **5. Leaderboard & Winner Celebration (`RoundScoreboardView` & `WinnerCelebrationView`)**:
+  - Mid-game scoreboards tracking rank shifts.
+  - 3D-style podium ceremony with 1st, 2nd, and 3rd place pedestals, golden crown fanfare, and MVP awards (*Speed Demon*, *Accuracy Ace*, *Longest Streak*).
 
 ---
 
-### Slide 3: Market Differentiation & Competitor Matrix
-
-| Feature | Tasty / NYT Cooking | MasterClass | KitchenCrew (tvOS) |
-| :--- | :--- | :--- | :--- |
-| **Primary Platform** | Mobile / Web (Single user) | Passive TV / Mobile App | **tvOS 10-Foot Conductor Hub** |
-| **Multi-Device Household Sync** | ❌ None | ❌ None | **✅ Real-time Multipeer Mesh** |
-| **Hands-Free Kitchen Voice Engine** | ❌ None | ❌ None | **✅ SiriKit / Local Speech Intent NLP** |
-| **Multi-Angle Camera Feeds** | ❌ Fixed single edit | ❌ Linear static cut | **✅ Interactive Wide / Macro Pan Toggle** |
-| **Distributed Station Delegation** | ❌ Monolithic list | ❌ Passive video | **✅ Sub-station Checklists (Prep/Sauté)** |
-| **10-Foot Kitchen Visibility** | ❌ Poor (mobile-first) | ⚠️ Generic media player | **✅ 44pt+ High-Contrast Glow Timers** |
-
----
-
-### Slide 4: Advanced Prototype Features (tvOS-Specific)
-* **The Conductor Paradigm**:
-  - The Apple TV acts as the single source of truth for the session state.
-  - Station tasks are dynamically partitioned based on household members:
-    - **User A (Prep Station)**: Focuses on cutting, seasoning, and mousseline puree on iPad Pro.
-    - **User B (Sauté Station)**: Manages pan searing, butter basting, and temperature timing on iPhone 15 Pro.
-* **Live Task Synchronization**:
-  - When Chef Alex checks off *"Diced 2 shallots"* on the iPad, the Apple TV immediately rings a gentle chime, broadcasts a glassmorphic celebration banner, updates Alex's progress ring, and unblocks Chef Sarah's dependent searing step.
+### Slide 4: 15% Technical Proficiency — Apple Ecosystem Architecture
+* **SwiftUI for tvOS with `@FocusState`**:
+  - Custom focus engine styles expanding cards by 1.06x with white specular sheen and directional d-pad snap.
+* **Swift Concurrency (`Task` & `Task.sleep`)**:
+  - 100ms drift-free countdown timer loop powering smooth 60fps countdown bars and whole-second audio ticks.
+* **Type-Safe Sub-expression Architecture**:
+  - Refactored complex SwiftUI view bodies into strongly-typed computed properties (`progressColor`, `primaryTextColor`, `cardBackground`) to guarantee sub-millisecond Swift compiler type checking.
+* **Multipeer Connectivity (`TriviaSyncPayload`)**:
+  - Zero-configuration local Wi-Fi and Bluetooth LE broadcast of Codable player answer packets.
+* **Responsive tvOS Audio Feedback (`AudioToolbox`)**:
+  - Native system sound IDs (1104 remote tick, 1001 buzzer lock, 1025 correct fanfare, 1053 wrong thud, 1026 victory fanfare).
 
 ---
 
-### Slide 5: Voice-Controlled Navigation in Loud Kitchens
-* **The Acoustic Challenge**: Kitchens are hostile acoustic environments filled with sizzling bacon/scallops, whirring exhaust hoods, running tap water, and clattering pans.
-* **KitchenCrew Voice Solution**:
-  - Built using Apple's `Speech` framework (`SFSpeechRecognizer`) and `AVAudioEngine`.
-  - Implements **Beamforming Microphone Array** isolation on the Siri Remote and paired HomePods.
-  - Uses domain-tailored **Acoustic Context Models** (`contextualStrings = ["KitchenCrew", "sear", "scallops", "arrosé", "timer", "baste"]`).
-  - Recognizes intuitive spoken intents:
-    - *"Hey Siri, next step"*
-    - *"Set sear timer for 90 seconds"*
-    - *"Switch to pan angle"*
-    - *"What can I substitute for heavy cream?"*
+### Slide 5: 20% Pitch Presentation & Market Strategy
+* **Target Audience**:
+  - Families with kids (all-ages trivia night).
+  - College student apartments & party hosts.
+  - Casual gaming gatherings and holiday reunions.
+* **Market Opportunity**:
+  - Part of the $4.2B global digital party and casual board game market.
+  - Jackbox Party Pack has generated over $100M+ in revenue, proving immense demand for big-screen party games.
+* **Competitive Advantage vs. Jackbox**:
+  - **Native tvOS SwiftUI Performance**: Instant launch, Siri Remote navigation, 120Hz ProMotion smoothness.
+  - **No Web Browser Latency**: Bypasses web browser room logins; uses low-latency local P2P Bluetooth/Wi-Fi.
+  - **Dedicated Apple TV Experience**: Built specifically around tvOS 10-foot design guidelines.
+* **Monetization & Revenue Model**:
+  - **Free Base App**: 4 full category packs included out of the box.
+  - **Expansion Packs (In-App Purchases)**: $2.99 themed DLC packs (e.g., *"90s Nostalgia"*, *"Marvel & Sci-Fi"*, *"Premier League Lore"*).
+  - **TriviaNight Pro Club**: $1.99/mo subscription providing weekly current-events trivia and custom living room quiz creator.
 
 ---
 
-### Slide 6: Split-Screen Multi-Angle 4K Playback
-* **Problem**: In cooking videos, home cooks need to see both the chef's knife technique/body posture (wide) AND the delicate bubble foam/crust development inside the copper pan (macro).
-* **The Solution**:
-  - **Single Angle Mode**: Fluid crossfade between **Wide Chef Angle**, **Macro Pan Sizzle Angle**, and **Overhead Plating Angle**.
-  - **Dynamic Step Auto-Switch**: When Step 4 ("The 90-Second High-Heat Sear") triggers, tvOS automatically defaults to the Macro Pan Angle.
-  - **Split-Screen Dual View**: Side-by-side synchronized feeds powered by frame-accurate HLS timestamp offsets (`AVPlayerItemTimeOffset`).
-
----
-
-### Slide 7: 10-Foot UI & Siri Remote Focus Engine
-* **10-Foot Television UX Guidelines**:
-  - Designed for a 10-to-15 foot viewing distance.
-  - High contrast typography: 32pt+ step headlines, 44pt+ monospace countdown clocks, glowing amber/cyan accent highlights.
-  - Large color-coded radial progress dials with emergency pulsing states when remaining time drops below 30 seconds.
-* **Apple tvOS Focus Engine Compliance**:
-  - Implements native `@FocusState` in SwiftUI.
-  - Focusable cards feature 3D parallax tilt (`perspective`, `rotateX`, `rotateY`) and floating specular sheen highlights as the user swipes the Siri Remote trackpad.
-  - Clicking the trackpad instantly triggers the **Quick Culinary Customizer** (instant substitutions, dietary swaps, metric/imperial unit toggles).
-
----
-
-### Slide 8: Technical Implementation & Networking Stack
-* **Architecture**: Clean MVVM + Combine + Swift Concurrency (`async/await`) on tvOS 17+ and iOS 17+.
-* **Networking & Synchronization**:
-  - **Primary**: Apple `MultipeerConnectivity` (`MCSession`, `MCNearbyServiceAdvertiser`, `MCNearbyServiceBrowser`). Creates an ad-hoc local Wi-Fi Direct and Bluetooth Low Energy mesh between Apple TV and household mobile devices. Zero cloud latency (< 15ms) and works 100% offline even if internet drops.
-  - **Fallback**: `CloudKit` / WebSockets for remote friends or family members cooking along in different households.
-* **Video Streaming**: HTTP Live Streaming (HLS) with multi-audio master playlist and coordinated multi-variant video streams.
-
----
-
-### Slide 9: Business Model & Go-To-Market
-* **Revenue Model: KitchenCrew Premium ($12.99/mo or $99/year)**:
-  - Exclusive interactive masterclass seasons taught by 3-Star Michelin chefs and culinary authors.
-  - Dynamic AI substitution algorithms (auto-adapting recipes for keto, vegan, dairy-free, nut-free households).
-  - One-tap automated grocery fulfillment (Apple Pay + Instacart / Amazon Fresh API integration).
-* **Go-To-Market (GTM) Strategy**:
-  1. **Culinary Creator Partnerships**: Partner with top YouTube food creators and TikTok chefs to release interactive tvOS cook-along seasons.
-  2. **Smart Appliance Ecosystem**: Co-marketing and HomeKit integration with smart induction cooktops and connected ovens (Breville Joule, June, GE Profile).
-  3. **Apple TV App Store Feature**: Optimized specifically for Apple's annual tvOS App Store showcase and WWDC design awards.
-
----
-
-### Slide 10: Viva Defense & Examiner Q&A Guide
-
-#### Q1: "Why tvOS? Most people don't have a TV in their kitchen."
-> **Defense**: Modern living layouts are predominantly open-plan, where the living room TV is directly in line-of-sight from the kitchen island or stove. Furthermore, dedicated kitchen smart displays (like 24–32" smart TVs or monitors equipped with an Apple TV 4K) are among the fastest growing smart home segments. Moving the recipe to the big screen eliminates the hazard of spills, grease, and moisture ruining expensive mobile devices.
-
-#### Q2: "How do you maintain synchronization if one chef falls behind?"
-> **Defense**: KitchenCrew implements step dependency gating (`dependsOnStepId`). If Step 4 (Sauté Sear) requires the shallots to be diced (Step 1), the Apple TV displays a gentle warning: *"Waiting on Prep Station (Chef Alex)"*. The sauté timer will not automatically trigger until Alex marks the shallots complete or Sarah chooses to override with the Siri Remote.
-
-#### Q3: "Why choose Multipeer Connectivity over a standard WebSocket cloud server?"
-> **Defense**: Kitchen reliability is paramount. A cook cannot afford a network lag spike or cloud server outage while searing high-heat scallops. Apple's Multipeer Connectivity operates over peer-to-peer Wi-Fi and Bluetooth LE locally inside the home. It requires zero cloud infrastructure, provides sub-15ms packet latency, and functions seamlessly even when the home's broadband is completely down.
+### Slide 6: Summary & Live Demonstration
+* Complete native SwiftUI codebase ready to build in Xcode (`TriviaNight-tvOS/TriviaNight.xcodeproj`).
+* Fully functional web simulator running locally at `http://localhost:3000` with virtual Siri Remote, live interactive iPhone buzzer controller, and interactive slide deck.

@@ -1,0 +1,473 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA010001 /* TriviaNightTVApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010001 /* TriviaNightTVApp.swift */; };
+		AA010002 /* TriviaQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010002 /* TriviaQuestion.swift */; };
+		AA010003 /* TriviaCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010003 /* TriviaCategory.swift */; };
+		AA010004 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010004 /* Player.swift */; };
+		AA010005 /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010005 /* GameState.swift */; };
+		AA010006 /* TriviaSyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010006 /* TriviaSyncPayload.swift */; };
+		AA010007 /* TVTriviaGameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010007 /* TVTriviaGameViewModel.swift */; };
+		AA010008 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010008 /* ColorExtension.swift */; };
+		AA010009 /* TVRootGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010009 /* TVRootGameView.swift */; };
+		AA010010 /* LobbyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010010 /* LobbyView.swift */; };
+		AA010011 /* CategorySelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010011 /* CategorySelectView.swift */; };
+		AA010012 /* QuestionTimerBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010012 /* QuestionTimerBoardView.swift */; };
+		AA010013 /* AnswerRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010013 /* AnswerRevealView.swift */; };
+		AA010014 /* RoundScoreboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010014 /* RoundScoreboardView.swift */; };
+		AA010015 /* WinnerCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010015 /* WinnerCelebrationView.swift */; };
+		AA010016 /* TriviaAudioEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010016 /* TriviaAudioEngine.swift */; };
+		AA010017 /* TriviaSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010017 /* TriviaSyncManager.swift */; };
+		AA020001 /* CompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB020001 /* CompanionApp.swift */; };
+		AA020002 /* CompanionBuzzerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB020002 /* CompanionBuzzerViewModel.swift */; };
+		AA020003 /* CompanionBuzzerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB020003 /* CompanionBuzzerView.swift */; };
+		AA020004 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010004 /* Player.swift */; };
+		AA020005 /* TriviaSyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010006 /* TriviaSyncPayload.swift */; };
+		AA020006 /* TriviaSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB010017 /* TriviaSyncManager.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		BB010000 /* TriviaNightTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TriviaNightTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB010001 /* TriviaNightTVApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaNightTVApp.swift; sourceTree = "<group>"; };
+		BB010002 /* TriviaQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaQuestion.swift; sourceTree = "<group>"; };
+		BB010003 /* TriviaCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaCategory.swift; sourceTree = "<group>"; };
+		BB010004 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		BB010005 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
+		BB010006 /* TriviaSyncPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaSyncPayload.swift; sourceTree = "<group>"; };
+		BB010007 /* TVTriviaGameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVTriviaGameViewModel.swift; sourceTree = "<group>"; };
+		BB010008 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
+		BB010009 /* TVRootGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVRootGameView.swift; sourceTree = "<group>"; };
+		BB010010 /* LobbyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LobbyView.swift; sourceTree = "<group>"; };
+		BB010011 /* CategorySelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorySelectView.swift; sourceTree = "<group>"; };
+		BB010012 /* QuestionTimerBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionTimerBoardView.swift; sourceTree = "<group>"; };
+		BB010013 /* AnswerRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerRevealView.swift; sourceTree = "<group>"; };
+		BB010014 /* RoundScoreboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundScoreboardView.swift; sourceTree = "<group>"; };
+		BB010015 /* WinnerCelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinnerCelebrationView.swift; sourceTree = "<group>"; };
+		BB010016 /* TriviaAudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaAudioEngine.swift; sourceTree = "<group>"; };
+		BB010017 /* TriviaSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaSyncManager.swift; sourceTree = "<group>"; };
+		BB010018 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BB020000 /* TriviaNightCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TriviaNightCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB020001 /* CompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionApp.swift; sourceTree = "<group>"; };
+		BB020002 /* CompanionBuzzerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionBuzzerViewModel.swift; sourceTree = "<group>"; };
+		BB020003 /* CompanionBuzzerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionBuzzerView.swift; sourceTree = "<group>"; };
+		BB020004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC010000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC020000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DD000001 = {
+			isa = PBXGroup;
+			children = (
+				DD010000 /* Sources */,
+				DD000002 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DD000002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BB010000 /* TriviaNightTV.app */,
+				BB020000 /* TriviaNightCompanion.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DD010000 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				DD010001 /* TriviaNightTV */,
+				DD020001 /* TriviaNightCompanion */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		DD010001 /* TriviaNightTV */ = {
+			isa = PBXGroup;
+			children = (
+				DD010010 /* App */,
+				DD010020 /* Models */,
+				DD010030 /* ViewModels */,
+				DD010040 /* Views */,
+				DD010050 /* Services */,
+				BB010018 /* Info.plist */,
+			);
+			path = TriviaNightTV;
+			sourceTree = "<group>";
+		};
+		DD010010 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BB010001 /* TriviaNightTVApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DD010020 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BB010002 /* TriviaQuestion.swift */,
+				BB010003 /* TriviaCategory.swift */,
+				BB010004 /* Player.swift */,
+				BB010005 /* GameState.swift */,
+				BB010006 /* TriviaSyncPayload.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DD010030 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				BB010007 /* TVTriviaGameViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DD010040 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BB010008 /* ColorExtension.swift */,
+				BB010009 /* TVRootGameView.swift */,
+				BB010010 /* LobbyView.swift */,
+				BB010011 /* CategorySelectView.swift */,
+				BB010012 /* QuestionTimerBoardView.swift */,
+				BB010013 /* AnswerRevealView.swift */,
+				BB010014 /* RoundScoreboardView.swift */,
+				BB010015 /* WinnerCelebrationView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DD010050 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				BB010016 /* TriviaAudioEngine.swift */,
+				BB010017 /* TriviaSyncManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		DD020001 /* TriviaNightCompanion */ = {
+			isa = PBXGroup;
+			children = (
+				DD020010 /* App */,
+				DD020020 /* ViewModels */,
+				DD020030 /* Views */,
+				BB020004 /* Info.plist */,
+			);
+			path = TriviaNightCompanion;
+			sourceTree = "<group>";
+		};
+		DD020010 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BB020001 /* CompanionApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DD020020 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				BB020002 /* CompanionBuzzerViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DD020030 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BB020003 /* CompanionBuzzerView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EE010000 /* TriviaNightTV */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FF010000 /* Build configuration list for PBXNativeTarget "TriviaNightTV" */;
+			buildPhases = (
+				GG010000 /* Sources */,
+				CC010000 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TriviaNightTV;
+			productName = TriviaNightTV;
+			productReference = BB010000 /* TriviaNightTV.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EE020000 /* TriviaNightCompanion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FF020000 /* Build configuration list for PBXNativeTarget "TriviaNightCompanion" */;
+			buildPhases = (
+				GG020000 /* Sources */,
+				CC020000 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TriviaNightCompanion;
+			productName = TriviaNightCompanion;
+			productReference = BB020000 /* TriviaNightCompanion.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		00000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					EE010000 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					EE020000 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = FF000000 /* Build configuration list for PBXProject "TriviaNight" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DD000001;
+			productRefGroup = DD000002 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EE010000 /* TriviaNightTV */,
+				EE020000 /* TriviaNightCompanion */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		GG010000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA010001 /* TriviaNightTVApp.swift in Sources */,
+				AA010002 /* TriviaQuestion.swift in Sources */,
+				AA010003 /* TriviaCategory.swift in Sources */,
+				AA010004 /* Player.swift in Sources */,
+				AA010005 /* GameState.swift in Sources */,
+				AA010006 /* TriviaSyncPayload.swift in Sources */,
+				AA010007 /* TVTriviaGameViewModel.swift in Sources */,
+				AA010008 /* ColorExtension.swift in Sources */,
+				AA010009 /* TVRootGameView.swift in Sources */,
+				AA010010 /* LobbyView.swift in Sources */,
+				AA010011 /* CategorySelectView.swift in Sources */,
+				AA010012 /* QuestionTimerBoardView.swift in Sources */,
+				AA010013 /* AnswerRevealView.swift in Sources */,
+				AA010014 /* RoundScoreboardView.swift in Sources */,
+				AA010015 /* WinnerCelebrationView.swift in Sources */,
+				AA010016 /* TriviaAudioEngine.swift in Sources */,
+				AA010017 /* TriviaSyncManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		GG020000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA020001 /* CompanionApp.swift in Sources */,
+				AA020002 /* CompanionBuzzerViewModel.swift in Sources */,
+				AA020003 /* CompanionBuzzerView.swift in Sources */,
+				AA020004 /* Player.swift in Sources */,
+				AA020005 /* TriviaSyncPayload.swift in Sources */,
+				AA020006 /* TriviaSyncManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FF000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		FF000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		FF010001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/TriviaNightTV/Info.plist;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trivianight.tvos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		FF010002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/TriviaNightTV/Info.plist;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trivianight.tvos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+		FF020001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6PMASQKA49;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/TriviaNightCompanion/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trivianight.companion;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FF020002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6PMASQKA49;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/TriviaNightCompanion/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trivianight.companion;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FF000000 /* Build configuration list for PBXProject "TriviaNight" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF000001 /* Debug */,
+				FF000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FF010000 /* Build configuration list for PBXNativeTarget "TriviaNightTV" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF010001 /* Debug */,
+				FF010002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FF020000 /* Build configuration list for PBXNativeTarget "TriviaNightCompanion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF020001 /* Debug */,
+				FF020002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 00000001 /* Project object */;
+}

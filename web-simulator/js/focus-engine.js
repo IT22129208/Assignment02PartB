@@ -1,80 +1,36 @@
-// Apple TV 4K Focus Engine implementation with 3D Tilt Parallax & Spatial Navigation
+// tvOS FocusEngine Simulator
 class TVFocusEngine {
   constructor() {
     this.currentFocused = null;
-    this.isListening = false;
-  }
-
-  init() {
-    this.bindEvents();
-    // Default focus on the primary action button
-    setTimeout(() => {
-      const initial = document.querySelector('.focusable.default-focus') || document.querySelector('.focusable');
-      if (initial) {
-        this.setFocus(initial);
-      }
-    }, 200);
+    this.initKeyboardListeners();
   }
 
   getFocusableElements() {
-    return Array.from(document.querySelectorAll('.focusable:not([disabled]):not(.hidden)'))
+    return Array.from(document.querySelectorAll('.focusable'))
       .filter(el => {
-        const rect = el.getBoundingClientRect();
-        return rect.width > 0 && rect.height > 0 && window.getComputedStyle(el).display !== 'none';
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null && !el.disabled;
       });
   }
 
-  setFocus(el) {
-    if (!el || el === this.currentFocused) return;
-    
+  setFocus(element, playSound = true) {
+    if (!element) return;
     if (this.currentFocused) {
-      this.currentFocused.classList.remove('focused');
-      this.currentFocused.style.transform = '';
-      const sheen = this.currentFocused.querySelector('.specular-sheen');
-      if (sheen) sheen.style.opacity = '0';
+      this.currentFocused.classList.remove('is-focused');
     }
-
-    this.currentFocused = el;
-    el.classList.add('focused');
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-
-    if (window.SFX) {
-      window.SFX.playFocusTick();
+    this.currentFocused = element;
+    this.currentFocused.classList.add('is-focused');
+    this.currentFocused.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (playSound && window.SFX) {
+      window.SFX.playFocusClick();
     }
-
-    // Attach parallax hover listener
-    this.attachTiltEffect(el);
   }
 
-  attachTiltEffect(el) {
-    el.onmousemove = (e) => {
-      if (!el.classList.contains('focused')) return;
-      const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      const deltaX = (x - centerX) / centerX;
-      const deltaY = (y - centerY) / centerY;
-
-      const rotateX = -deltaY * 8; // degrees
-      const rotateY = deltaX * 8;
-
-      el.style.transform = `scale(1.06) perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(12px)`;
-    };
-
-    el.onmouseleave = () => {
-      if (el.classList.contains('focused')) {
-        el.style.transform = 'scale(1.05)';
-      }
-    };
-  }
-
-  navigate(direction) {
+  moveFocus(direction) {
     const focusables = this.getFocusableElements();
     if (!focusables.length) return;
-    if (!this.currentFocused) {
+
+    if (!this.currentFocused || !focusables.includes(this.currentFocused)) {
       this.setFocus(focusables[0]);
       return;
     }
@@ -85,117 +41,87 @@ class TVFocusEngine {
       y: currentRect.top + currentRect.height / 2
     };
 
-    let bestElement = null;
+    let bestCandidate = null;
     let minDistance = Infinity;
 
-    focusables.forEach(target => {
-      if (target === this.currentFocused) return;
-      const targetRect = target.getBoundingClientRect();
-      const targetCenter = {
-        x: targetRect.left + targetRect.width / 2,
-        y: targetRect.top + targetRect.height / 2
+    for (const candidate of focusables) {
+      if (candidate === this.currentFocused) continue;
+      const r = candidate.getBoundingClientRect();
+      const candCenter = {
+        x: r.left + r.width / 2,
+        y: r.top + r.height / 2
       };
 
-      const dx = targetCenter.x - currentCenter.x;
-      const dy = targetCenter.y - currentCenter.y;
+      const dx = candCenter.x - currentCenter.x;
+      const dy = candCenter.y - currentCenter.y;
 
-      let isValidDirection = false;
-      let primaryDistance = 0;
-      let secondaryDistance = 0;
+      let isEligible = false;
+      if (direction === 'up' && dy < -10) isEligible = true;
+      if (direction === 'down' && dy > 10) isEligible = true;
+      if (direction === 'left' && dx < -10) isEligible = true;
+      if (direction === 'right' && dx > 10) isEligible = true;
 
-      switch (direction) {
-        case 'up':
-          isValidDirection = dy < -10;
-          primaryDistance = Math.abs(dy);
-          secondaryDistance = Math.abs(dx);
-          break;
-        case 'down':
-          isValidDirection = dy > 10;
-          primaryDistance = Math.abs(dy);
-          secondaryDistance = Math.abs(dx);
-          break;
-        case 'left':
-          isValidDirection = dx < -10;
-          primaryDistance = Math.abs(dx);
-          secondaryDistance = Math.abs(dy);
-          break;
-        case 'right':
-          isValidDirection = dx > 10;
-          primaryDistance = Math.abs(dx);
-          secondaryDistance = Math.abs(dy);
-          break;
-      }
-
-      if (isValidDirection) {
-        // Weighted metric giving higher priority to collinear elements
-        const distance = primaryDistance + secondaryDistance * 2.2;
+      if (isEligible) {
+        // Spatial angle weighting for natural 2D grid snapping
+        const distance = Math.hypot(dx, dy) + (
+          (direction === 'up' || direction === 'down') ? Math.abs(dx) * 1.5 : Math.abs(dy) * 1.5
+        );
         if (distance < minDistance) {
           minDistance = distance;
-          bestElement = target;
+          bestCandidate = candidate;
         }
       }
-    });
+    }
 
-    if (bestElement) {
-      this.setFocus(bestElement);
+    if (bestCandidate) {
+      this.setFocus(bestCandidate);
     }
   }
 
-  selectCurrent() {
+  triggerSelect() {
     if (this.currentFocused) {
-      if (window.SFX) window.SFX.playSelectSound();
       this.currentFocused.click();
-      
-      // Haptic bounce
-      this.currentFocused.style.transform = 'scale(0.96)';
+      this.currentFocused.classList.add('is-pressed');
       setTimeout(() => {
         if (this.currentFocused) {
-          this.currentFocused.style.transform = 'scale(1.05)';
+          this.currentFocused.classList.remove('is-pressed');
         }
-      }, 120);
+      }, 150);
     }
   }
 
-  bindEvents() {
-    if (this.isListening) return;
-    this.isListening = true;
-
+  initKeyboardListeners() {
     window.addEventListener('keydown', (e) => {
-      // Ignore if typing in text input
-      if (['input', 'textarea'].includes(document.activeElement.tagName.toLowerCase())) return;
+      // Don't intercept if user is typing in an input
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
 
       switch (e.key) {
         case 'ArrowUp':
           e.preventDefault();
-          this.navigate('up');
+          this.moveFocus('up');
           break;
         case 'ArrowDown':
           e.preventDefault();
-          this.navigate('down');
+          this.moveFocus('down');
           break;
         case 'ArrowLeft':
           e.preventDefault();
-          this.navigate('left');
+          this.moveFocus('left');
           break;
         case 'ArrowRight':
           e.preventDefault();
-          this.navigate('right');
+          this.moveFocus('right');
           break;
         case 'Enter':
         case ' ':
           e.preventDefault();
-          this.selectCurrent();
+          this.triggerSelect();
           break;
         case 'Escape':
         case 'Backspace':
           e.preventDefault();
-          // Trigger back/menu
-          const modal = document.querySelector('.modal-overlay.active');
-          if (modal) {
-            modal.classList.remove('active');
-          } else {
-            const backBtn = document.getElementById('btn-prev-step');
-            if (backBtn) backBtn.click();
+          if (window.App && typeof window.App.handleBack === 'function') {
+            window.App.handleBack();
           }
           break;
       }

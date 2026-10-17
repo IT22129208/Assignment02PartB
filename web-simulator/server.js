@@ -35,5 +35,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`KitchenCrew tvOS Simulator running at http://localhost:${PORT}`);
+  console.log(`TriviaNight tvOS Simulator running at http://localhost:${PORT}`);
 });

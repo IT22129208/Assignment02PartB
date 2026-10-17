@@ -1,320 +1,790 @@
-// Master KitchenCrew Application Controller
-class KitchenCrewApp {
+// TriviaNight TV - Master Simulator Controller
+class TriviaNightApp {
   constructor() {
-    this.recipe = window.KITCHEN_DATA.recipe;
-    this.currentStepIndex = 0;
-    this.timers = [
-      { id: 't1', label: 'Cauliflower Steam', totalSeconds: 420, remainingSeconds: 380, isRunning: true, station: 'prep', color: '#38bdf8' },
-      { id: 't2', label: 'Scallop Sear', totalSeconds: 90, remainingSeconds: 90, isRunning: false, station: 'saute', color: '#f97316' }
-    ];
+    this.state = 'lobby'; // lobby | categorySelect | countdown | questionActive | answerReveal | scoreboard | winnerPodium
+    this.categories = window.TriviaData.categories;
+    this.selectedCategory = this.categories[0];
+    this.currentQuestionIndex = 0;
+    this.players = JSON.parse(JSON.stringify(window.TriviaData.initialPlayers));
+    
+    this.timeRemaining = 15.0;
+    this.totalTime = 15.0;
     this.timerInterval = null;
+    this.countdownSeconds = 3;
+    
+    this.init();
   }
 
   init() {
-    this.renderHeader();
-    this.renderCurrentStep();
-    this.renderSubstationStrip();
-    this.renderTimers();
-    this.startTimerLoop();
-
-    // Initialize sub-modules
-    if (window.MultiAngle) window.MultiAngle.init();
-    if (window.SyncBus) window.SyncBus.init();
-    if (window.FocusEngine) window.FocusEngine.init();
-    if (window.Presentation) window.Presentation.init();
-
-    this.bindRemoteControls();
+    this.bindEvents();
+    this.bindSyncBus();
+    this.renderCurrentState();
   }
 
-  renderHeader() {
-    const titleEl = document.getElementById('recipe-main-title');
-    const chefEl = document.getElementById('chef-credit-label');
-    if (titleEl) titleEl.textContent = this.recipe.title;
-    if (chefEl) chefEl.textContent = this.recipe.masterChef;
-  }
+  bindEvents() {
+    // Virtual Siri Remote button listeners
+    document.getElementById('remote-up')?.addEventListener('click', () => window.FocusEngine.moveFocus('up'));
+    document.getElementById('remote-down')?.addEventListener('click', () => window.FocusEngine.moveFocus('down'));
+    document.getElementById('remote-left')?.addEventListener('click', () => window.FocusEngine.moveFocus('left'));
+    document.getElementById('remote-right')?.addEventListener('click', () => window.FocusEngine.moveFocus('right'));
+    document.getElementById('remote-center')?.addEventListener('click', () => window.FocusEngine.triggerSelect());
+    document.getElementById('remote-menu')?.addEventListener('click', () => this.handleBack());
+    document.getElementById('remote-playpause')?.addEventListener('click', () => this.simulateQuickBuzzer());
 
-  renderCurrentStep() {
-    const step = this.recipe.steps[this.currentStepIndex];
-    if (!step) return;
-
-    // Update Progress
-    const stepBadge = document.getElementById('step-counter-badge');
-    if (stepBadge) stepBadge.textContent = `STEP ${step.id} OF ${this.recipe.steps.length}`;
-
-    const progressFill = document.getElementById('master-progress-fill');
-    if (progressFill) {
-      const pct = (step.id / this.recipe.steps.length) * 100;
-      progressFill.style.width = `${pct}%`;
-    }
-
-    // Station Badge
-    const stationBadge = document.getElementById('step-station-badge');
-    if (stationBadge) {
-      stationBadge.textContent = step.stationName.toUpperCase();
-      stationBadge.style.color = step.stationColor;
-      stationBadge.style.backgroundColor = `${step.stationColor}22`;
-      stationBadge.style.borderColor = `${step.stationColor}44`;
-    }
-
-    // Step Title & Instructions
-    const titleEl = document.getElementById('step-title-text');
-    if (titleEl) titleEl.textContent = step.title;
-
-    const instructionEl = document.getElementById('step-instruction-text');
-    if (instructionEl) instructionEl.textContent = step.instruction;
-
-    // Callout (Warning or Chef Tip)
-    const calloutEl = document.getElementById('step-callout-box');
-    if (calloutEl) {
-      if (step.warning) {
-        calloutEl.className = 'step-callout warning';
-        calloutEl.innerHTML = `
-          <div class="callout-icon">⚠️</div>
-          <div class="callout-body">
-            <div class="callout-title">CRITICAL CHEF ALERT</div>
-            <div class="callout-text">${step.warning}</div>
-          </div>
-        `;
-        calloutEl.style.display = 'flex';
-      } else if (step.chefTip) {
-        calloutEl.className = 'step-callout tip';
-        calloutEl.innerHTML = `
-          <div class="callout-icon">💡</div>
-          <div class="callout-body">
-            <div class="callout-title">MICHELIN CHEF TIP</div>
-            <div class="callout-text">${step.chefTip}</div>
-          </div>
-        `;
-        calloutEl.style.display = 'flex';
-      } else {
-        calloutEl.style.display = 'none';
-      }
-    }
-
-    // Step Next Button Label
-    const nextBtn = document.getElementById('btn-next-step');
-    if (nextBtn) {
-      if (this.currentStepIndex === this.recipe.steps.length - 1) {
-        nextBtn.innerHTML = `<span>Complete Recipe 🎉</span>`;
-      } else {
-        nextBtn.innerHTML = `<span>Step Complete (Next)</span> ➔`;
-      }
-    }
-
-    // Auto-switch camera angle to match step recommendation if not manual
-    if (window.MultiAngle && step.recommendedAngle) {
-      window.MultiAngle.setAngle(step.recommendedAngle, false);
-    }
-  }
-
-  nextStep() {
-    if (this.currentStepIndex < this.recipe.steps.length - 1) {
-      this.currentStepIndex++;
-      this.renderCurrentStep();
-      if (window.SFX) window.SFX.playStepComplete();
-      this.showToast(`Advanced to Step ${this.currentStepIndex + 1}: ${this.recipe.steps[this.currentStepIndex].title}`, '#38bdf8');
-    } else {
-      this.showToast("🎉 Recipe Completed! Bon Appétit, KitchenCrew!", "#10b981");
-      if (window.SFX) window.SFX.playTimerBell();
-    }
-  }
-
-  prevStep() {
-    if (this.currentStepIndex > 0) {
-      this.currentStepIndex--;
-      this.renderCurrentStep();
-      if (window.SFX) window.SFX.playFocusTick();
-    }
-  }
-
-  renderSubstationStrip() {
-    const strip = document.getElementById('substation-status-strip');
-    if (!strip || !window.SyncBus) return;
-
-    let html = '';
-    window.SyncBus.stations.forEach(station => {
-      const completed = station.tasks.filter(t => t.completed).length;
-      const total = station.tasks.length;
-      const pct = Math.round((completed / total) * 100);
-      const activeTask = station.tasks.find(t => !t.completed) || station.tasks[station.tasks.length - 1];
-
-      html += `
-        <div class="station-chip focusable" onclick="window.App.showToast('${station.name} active task: ${activeTask ? activeTask.text : 'All done!'}', '${station.color}')">
-          <div class="station-avatar" style="background: ${station.color}22; color: ${station.color}">
-            ${station.name.split(' ')[1][0]}
-          </div>
-          <div class="station-meta">
-            <div class="station-name-row">
-              <span class="station-user">${station.name}</span>
-              <span class="station-device-badge">${station.device}</span>
-            </div>
-            <div class="station-task-preview">${activeTask ? activeTask.text : 'Station tasks complete!'}</div>
-            <div class="station-mini-progress">
-              <div class="mini-fill" style="width: ${pct}%; background: ${station.color}"></div>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-
-    strip.innerHTML = html;
-  }
-
-  renderTimers() {
-    const container = document.getElementById('oversized-timers-container');
-    if (!container) return;
-
-    let html = '';
-    this.timers.forEach(t => {
-      const mins = Math.floor(t.remainingSeconds / 60);
-      const secs = t.remainingSeconds % 60;
-      const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      const isUrgent = t.remainingSeconds <= 30 && t.remainingSeconds > 0;
-      const progress = 1 - (t.remainingSeconds / t.totalSeconds);
-      const strokeOffset = 220 - (220 * progress);
-
-      html += `
-        <div class="timer-card focusable ${isUrgent ? 'urgent' : ''}" onclick="window.App.toggleTimer('${t.id}')">
-          <div class="timer-radial">
-            <svg class="timer-dial-svg" width="68" height="68">
-              <circle class="timer-track-bg" cx="34" cy="34" r="28" />
-              <circle class="timer-track-fg" cx="34" cy="34" r="28" style="stroke-dashoffset: ${strokeOffset}; stroke: ${isUrgent ? '#ef4444' : t.color};" />
-            </svg>
-            <div class="timer-icon-center">
-              ${t.isRunning ? '⏱️' : '⏸️'}
-            </div>
-          </div>
-          <div class="timer-info">
-            <div class="timer-label-row">
-              <span class="timer-title">${t.label.toUpperCase()}</span>
-              <span class="timer-state-tag" style="background: ${t.color}22; color: ${t.color}">${t.station.toUpperCase()}</span>
-            </div>
-            <div class="timer-clock-digits ${isUrgent ? 'pulse-urgent' : ''}">${timeStr}</div>
-          </div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
-  }
-
-  toggleTimer(id) {
-    const timer = this.timers.find(t => t.id === id);
-    if (timer) {
-      timer.isRunning = !timer.isRunning;
-      if (window.SFX) window.SFX.playFocusTick();
-      this.renderTimers();
-      this.showToast(`${timer.label} ${timer.isRunning ? 'Started' : 'Paused'}`, timer.color);
-    }
-  }
-
-  addTimer(label, seconds) {
-    const newTimer = {
-      id: `timer-${Date.now()}`,
-      label: label,
-      totalSeconds: seconds,
-      remainingSeconds: seconds,
-      isRunning: true,
-      station: 'chef',
-      color: '#f97316'
-    };
-    this.timers.unshift(newTimer);
-    if (this.timers.length > 2) this.timers.pop(); // keep 2 on big screen
-    this.renderTimers();
-    if (window.SFX) window.SFX.playStepComplete();
-    this.showToast(`Started new timer: ${label} (${seconds}s)`, "#f97316");
-  }
-
-  startTimerLoop() {
-    this.timerInterval = setInterval(() => {
-      let needsRerender = false;
-      this.timers.forEach(t => {
-        if (t.isRunning && t.remainingSeconds > 0) {
-          t.remainingSeconds--;
-          needsRerender = true;
-          if (t.remainingSeconds === 0) {
-            t.isRunning = false;
-            if (window.SFX) window.SFX.playTimerBell();
-            this.showToast(`🔔 TIMER COMPLETE: ${t.label}!`, "#ef4444");
-          }
-        }
+    // iPhone Companion Buzzer Buttons (A, B, C, D)
+    document.querySelectorAll('.companion-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const choiceIdx = parseInt(e.currentTarget.getAttribute('data-index'));
+        this.lockInPlayerAnswer('player-sarah', choiceIdx);
       });
-      if (needsRerender) {
-        this.renderTimers();
+    });
+
+    // iPhone Avatar Picker
+    document.querySelectorAll('.c-avatar-opt').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.c-avatar-opt').forEach(b => b.classList.remove('is-selected'));
+        e.currentTarget.classList.add('is-selected');
+        window.SFX.playFocusClick();
+      });
+    });
+  }
+
+  handleCompanionJoin() {
+    const input = document.getElementById('companion-name-input');
+    const selectedAvatarBtn = document.querySelector('.c-avatar-opt.is-selected');
+    const avatar = selectedAvatarBtn ? selectedAvatarBtn.getAttribute('data-avatar') : '✨';
+    const name = (input && input.value.trim()) ? input.value.trim() : 'Alex';
+
+    // Update Sarah M. (the companion player) to this custom name and avatar
+    const companionPlayer = this.players.find(p => p.id === 'player-sarah');
+    if (companionPlayer) {
+      companionPlayer.name = name;
+      companionPlayer.avatar = avatar;
+    }
+
+    // Update iPhone companion display
+    const nameEl = document.getElementById('companion-player-name');
+    const avatarEl = document.getElementById('companion-player-avatar');
+    if (nameEl) nameEl.textContent = name;
+    if (avatarEl) avatarEl.textContent = avatar;
+
+    // Switch views in iPhone
+    const joinView = document.getElementById('companion-join-view');
+    const buzzerView = document.getElementById('companion-buzzer-view');
+    if (joinView) joinView.style.display = 'none';
+    if (buzzerView) buzzerView.style.display = 'block';
+
+    window.SFX.playBuzzerLock();
+    this.showToast(`👋 ${name} joined on iPhone!`, '#f43f5e');
+
+    // Re-render lobby on TV if currently in lobby
+    if (this.state === 'lobby') {
+      this.renderCurrentState();
+    }
+  }
+
+  handleCompanionEditProfile() {
+    const joinView = document.getElementById('companion-join-view');
+    const buzzerView = document.getElementById('companion-buzzer-view');
+    if (joinView) joinView.style.display = 'flex';
+    if (buzzerView) buzzerView.style.display = 'none';
+    window.SFX.playFocusClick();
+  }
+
+  bindSyncBus() {
+    window.SyncBus.on('playerAnswer', (payload) => {
+      this.lockInPlayerAnswer(payload.playerId, payload.answerIndex);
+    });
+  }
+
+  getCurrentQuestion() {
+    const qs = this.selectedCategory.questions;
+    return qs[this.currentQuestionIndex] || qs[0];
+  }
+
+  // MARK: - State Transitions
+
+  setScreenState(newState) {
+    this.state = newState;
+    this.renderCurrentState();
+    
+    // Auto focus the primary action element
+    setTimeout(() => {
+      const focusables = window.FocusEngine.getFocusableElements();
+      if (focusables.length) {
+        window.FocusEngine.setFocus(focusables[0], false);
+      }
+    }, 50);
+  }
+
+  showToast(message, color = '#38bdf8') {
+    const banner = document.getElementById('tv-toast-banner');
+    if (!banner) return;
+    const dot = banner.querySelector('.toast-dot');
+    const text = banner.querySelector('.toast-text');
+    if (dot) dot.style.background = color;
+    if (text) text.textContent = message;
+    
+    banner.classList.add('visible');
+    clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => {
+      banner.classList.remove('visible');
+    }, 2800);
+  }
+
+  handleBack() {
+    if (this.state === 'categorySelect' || this.state === 'winnerPodium') {
+      this.setScreenState('lobby');
+    } else if (this.state === 'questionActive' || this.state === 'countdown') {
+      this.stopTimer();
+      this.setScreenState('categorySelect');
+    } else if (this.state === 'answerReveal' || this.state === 'scoreboard') {
+      this.setScreenState('lobby');
+    }
+  }
+
+  // MARK: - Game Lifecycle
+
+  goToCategorySelect() {
+    window.SFX.playFocusClick();
+    this.setScreenState('categorySelect');
+  }
+
+  selectCategory(categoryId) {
+    const cat = this.categories.find(c => c.id === categoryId);
+    if (cat) {
+      this.selectedCategory = cat;
+      this.currentQuestionIndex = 0;
+      this.resetPlayersForGame();
+      window.SFX.playBuzzerLock();
+      this.startCountdown();
+    }
+  }
+
+  resetPlayersForGame() {
+    this.players.forEach(p => {
+      p.score = 0;
+      p.streak = 0;
+      p.highestStreak = 0;
+      p.correctCount = 0;
+      p.totalCount = 0;
+      p.selectedAnswer = null;
+      p.isLockedIn = false;
+      p.lastPoints = 0;
+    });
+  }
+
+  resetPlayersForRound() {
+    this.players.forEach(p => {
+      p.selectedAnswer = null;
+      p.isLockedIn = false;
+      p.answerTime = null;
+      p.lastPoints = 0;
+    });
+    this.updateCompanionUI();
+  }
+
+  startCountdown() {
+    this.countdownSeconds = 3;
+    this.setScreenState('countdown');
+    window.SFX.playTimerTick();
+
+    const interval = setInterval(() => {
+      this.countdownSeconds--;
+      const numEl = document.getElementById('countdown-number');
+      if (numEl) numEl.textContent = this.countdownSeconds;
+      
+      if (this.countdownSeconds > 0) {
+        window.SFX.playTimerTick();
+      } else {
+        clearInterval(interval);
+        this.beginQuestion();
       }
     }, 1000);
   }
 
-  showToast(message, color = "#f97316") {
-    const toast = document.getElementById('tv-toast-banner');
-    if (!toast) return;
+  beginQuestion() {
+    this.resetPlayersForRound();
+    const q = this.getCurrentQuestion();
+    this.timeRemaining = 15.0;
+    this.totalTime = 15.0;
+    this.setScreenState('questionActive');
+    this.startQuestionTimer();
+  }
 
-    toast.innerHTML = `
-      <span class="toast-dot" style="background: ${color}"></span>
-      <span class="toast-text">${message}</span>
+  startQuestionTimer() {
+    this.stopTimer();
+    this.timerInterval = setInterval(() => {
+      this.timeRemaining = Math.max(0, this.timeRemaining - 0.1);
+      this.updateTimerUI();
+
+      // Audio tick on whole seconds when under 5s
+      if (this.timeRemaining <= 5.0 && this.timeRemaining > 0) {
+        const rounded = Math.round(this.timeRemaining * 10) / 10;
+        if (rounded % 1 === 0) {
+          window.SFX.playTimerTick();
+        }
+      }
+
+      if (this.timeRemaining <= 0) {
+        this.stopTimer();
+        this.evaluateRound();
+      }
+    }, 100);
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  updateTimerUI() {
+    const fillEl = document.getElementById('question-timer-fill');
+    const textEl = document.getElementById('question-timer-text');
+    if (!fillEl || !textEl) return;
+
+    const progress = Math.max(0, Math.min(1, this.timeRemaining / this.totalTime));
+    fillEl.style.width = `${progress * 100}%`;
+    textEl.textContent = `${this.timeRemaining.toFixed(1)}s`;
+
+    if (this.timeRemaining <= 5.0) {
+      fillEl.style.background = '#ef4444';
+      textEl.style.color = '#ef4444';
+    } else if (this.timeRemaining <= 8.0) {
+      fillEl.style.background = '#f97316';
+      textEl.style.color = '#f97316';
+    } else {
+      fillEl.style.background = '#10b981';
+      textEl.style.color = '#ffffff';
+    }
+  }
+
+  // MARK: - Buzzing In & Locking In
+
+  lockInPlayerAnswer(playerId, answerIndex) {
+    if (this.state !== 'questionActive') return;
+    const player = this.players.find(p => p.id === playerId);
+    if (!player || player.isLockedIn) return;
+
+    const elapsed = parseFloat((this.totalTime - this.timeRemaining).toFixed(1));
+    player.selectedAnswer = answerIndex;
+    player.isLockedIn = true;
+    player.answerTime = elapsed;
+
+    window.SFX.playBuzzerLock();
+    this.showToast(`${player.name} locked in! (${elapsed}s)`, player.color);
+    
+    this.updateLockedAvatarsUI();
+    this.updateCompanionUI();
+
+    // If all players locked in, advance immediately
+    if (this.players.every(p => p.isLockedIn)) {
+      this.stopTimer();
+      setTimeout(() => this.evaluateRound(), 400);
+    }
+  }
+
+  simulateQuickBuzzer() {
+    if (this.state !== 'questionActive') return;
+    // Simulate remaining AI players buzzing in with random realistic delays
+    const unlocked = this.players.filter(p => !p.isLockedIn && p.id !== 'player-remote');
+    if (unlocked.length) {
+      const p = unlocked[0];
+      const choices = [0, 1, 2, 3];
+      this.lockInPlayerAnswer(p.id, choices[Math.floor(Math.random() * choices.length)]);
+    }
+  }
+
+  updateLockedAvatarsUI() {
+    // Show mini avatars on answer cards
+    document.querySelectorAll('.answer-card').forEach((card, idx) => {
+      const container = card.querySelector('.locked-avatars-cluster');
+      if (container) {
+        const lockedHere = this.players.filter(p => p.isLockedIn && p.selectedAnswer === idx);
+        container.innerHTML = lockedHere.map(p => `
+          <div class="locked-avatar-disc" style="background: ${p.color}" title="${p.name} locked in">
+            ${p.avatar}
+          </div>
+        `).join('');
+      }
+    });
+
+    // Update bottom locked count
+    const countEl = document.getElementById('locked-count-label');
+    if (countEl) {
+      const count = this.players.filter(p => p.isLockedIn).count || this.players.filter(p => p.isLockedIn).length;
+      countEl.textContent = `${count} OF ${this.players.length} PLAYERS LOCKED IN`;
+    }
+  }
+
+  updateCompanionUI() {
+    const sarah = this.players.find(p => p.id === 'player-sarah');
+    const statusText = document.getElementById('companion-status-text');
+    const cards = document.querySelectorAll('.companion-btn');
+
+    if (sarah && sarah.isLockedIn) {
+      if (statusText) {
+        statusText.textContent = "Answer Locked In!";
+        statusText.style.color = "#10b981";
+      }
+      cards.forEach((c, idx) => {
+        if (idx === sarah.selectedAnswer) {
+          c.classList.add('is-locked');
+        } else {
+          c.classList.remove('is-locked');
+          c.style.opacity = '0.35';
+        }
+      });
+    } else {
+      if (statusText) {
+        statusText.textContent = "Look at TV and buzz in!";
+        statusText.style.color = "rgba(255,255,255,0.7)";
+      }
+      cards.forEach(c => {
+        c.classList.remove('is-locked');
+        c.style.opacity = '1';
+      });
+    }
+  }
+
+  // MARK: - Round Evaluation & Scoring
+
+  evaluateRound() {
+    const q = this.getCurrentQuestion();
+    const correctIdx = q.correctIndex;
+    let anyCorrect = false;
+
+    this.players.forEach(p => {
+      p.totalCount++;
+      if (p.selectedAnswer === correctIdx) {
+        anyCorrect = true;
+        p.correctCount++;
+        p.streak++;
+        if (p.streak > p.highestStreak) p.highestStreak = p.streak;
+
+        const time = p.answerTime || this.totalTime;
+        const speedBonus = Math.round(Math.max(0, (this.totalTime - time) / this.totalTime) * 500);
+        const streakMultiplier = 1.0 + Math.min(1.0, (p.streak - 1) * 0.25);
+        const earned = Math.round((q.basePoints + speedBonus) * streakMultiplier);
+
+        p.lastPoints = earned;
+        p.score += earned;
+      } else {
+        p.streak = 0;
+        p.lastPoints = 0;
+      }
+    });
+
+    if (anyCorrect) {
+      window.SFX.playCorrectFanfare();
+    } else {
+      window.SFX.playWrongBuzzer();
+    }
+
+    this.setScreenState('answerReveal');
+  }
+
+  advanceToScoreboard() {
+    window.SFX.playFocusClick();
+    this.setScreenState('scoreboard');
+  }
+
+  nextRoundOrFinish() {
+    window.SFX.playFocusClick();
+    if (this.currentQuestionIndex < this.selectedCategory.questions.length - 1) {
+      this.currentQuestionIndex++;
+      this.startCountdown();
+    } else {
+      window.SFX.playVictoryPodium();
+      this.setScreenState('winnerPodium');
+    }
+  }
+
+  // MARK: - Screen Rendering
+
+  renderCurrentState() {
+    const container = document.getElementById('tv-screen-content');
+    if (!container) return;
+
+    switch (this.state) {
+      case 'lobby':
+        container.innerHTML = this.renderLobbyHTML();
+        break;
+      case 'categorySelect':
+        container.innerHTML = this.renderCategorySelectHTML();
+        break;
+      case 'countdown':
+        container.innerHTML = this.renderCountdownHTML();
+        break;
+      case 'questionActive':
+        container.innerHTML = this.renderQuestionActiveHTML();
+        this.updateTimerUI();
+        this.updateLockedAvatarsUI();
+        break;
+      case 'answerReveal':
+        container.innerHTML = this.renderAnswerRevealHTML();
+        break;
+      case 'scoreboard':
+        container.innerHTML = this.renderScoreboardHTML();
+        break;
+      case 'winnerPodium':
+        container.innerHTML = this.renderWinnerPodiumHTML();
+        break;
+    }
+  }
+
+  renderLobbyHTML() {
+    return `
+      <div class="lobby-screen">
+        <div class="lobby-header">
+          <div class="lobby-brand-row">
+            <span class="pub-icon">🍻</span>
+            <h1 class="lobby-title">TRIVIANIGHT TV</h1>
+          </div>
+          <p class="lobby-tagline">THE LIVING ROOM PUB QUIZ • MULTI-USER TVOS EXPERIENCE</p>
+        </div>
+
+        <div class="lobby-columns">
+          <!-- Room Code Card -->
+          <div class="room-code-card">
+            <span class="code-badge">LOCAL LIVING ROOM CODE</span>
+            <div class="room-code-display">PUB-4K</div>
+            <div class="connect-hints">
+              <p>📱 Open TriviaNight Companion on your iPhone to join</p>
+              <p class="sub-hint">Or click with this Siri Remote to play as host</p>
+            </div>
+          </div>
+
+          <!-- Connected Players -->
+          <div class="players-roster-card">
+            <div class="roster-header">
+              <span>PLAYERS IN ROOM (${this.players.length})</span>
+              <span class="room-status-dot">● READY TO PLAY</span>
+            </div>
+            <div class="players-grid">
+              ${this.players.map(p => `
+                <div class="player-roster-pill">
+                  <div class="player-avatar-circle" style="background: ${p.color}">
+                    ${p.avatar}
+                  </div>
+                  <div class="player-meta">
+                    <span class="p-name">${p.name}</span>
+                    <span class="p-controller">● ${p.controller}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="lobby-actions">
+          <button class="tv-btn secondary focusable" onclick="window.App.goToCategorySelect()">
+            <span>🗂️ Category Packs</span>
+          </button>
+          <button class="tv-btn primary focusable" onclick="window.App.startCountdown()">
+            <span>Start Trivia Night 🚀</span>
+          </button>
+        </div>
+      </div>
     `;
-    toast.style.borderColor = `${color}66`;
-    toast.classList.add('visible');
-
-    if (this.toastTimeout) clearTimeout(this.toastTimeout);
-    this.toastTimeout = setTimeout(() => {
-      toast.classList.remove('visible');
-    }, 3800);
   }
 
-  openSubstitutionsModal() {
-    const modal = document.getElementById('substitutions-modal');
-    if (modal) {
-      modal.classList.add('active');
-      if (window.SFX) window.SFX.playSelectSound();
-    }
+  renderCategorySelectHTML() {
+    return `
+      <div class="category-screen">
+        <div class="cat-header-row">
+          <button class="back-pill focusable" onclick="window.App.handleBack()">
+            <span>← Lobby</span>
+          </button>
+          <div class="cat-title-block">
+            <span class="cat-eyebrow">CHOOSE YOUR TRIVIA PACK</span>
+            <h2 class="cat-main-title">Select Tonight's Theme</h2>
+          </div>
+          <span class="cat-count-pill">${this.categories.length} PACKS AVAILABLE</span>
+        </div>
+
+        <div class="categories-grid">
+          ${this.categories.map(c => `
+            <div class="category-card focusable" onclick="window.App.selectCategory('${c.id}')" style="background: linear-gradient(135deg, ${c.colorStart}33, ${c.colorEnd}22)">
+              <div class="cat-icon-disc" style="background: linear-gradient(135deg, ${c.colorStart}, ${c.colorEnd})">
+                ${c.icon}
+              </div>
+              <div class="cat-info">
+                <div class="cat-card-top">
+                  <h3>${c.title}</h3>
+                  <span class="q-count-badge">${c.questions.length} Questions</span>
+                </div>
+                <p>${c.tagline}</p>
+              </div>
+              <span class="cat-arrow">→</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
   }
 
-  closeSubstitutionsModal() {
-    const modal = document.getElementById('substitutions-modal');
-    if (modal) {
-      modal.classList.remove('active');
-      if (window.SFX) window.SFX.playFocusTick();
-    }
+  renderCountdownHTML() {
+    return `
+      <div class="countdown-splash">
+        <span class="countdown-round-tag">ROUND ${this.currentQuestionIndex + 1} OF ${this.selectedCategory.questions.length}</span>
+        <div id="countdown-number" class="countdown-big-num">${this.countdownSeconds}</div>
+        <span class="countdown-prompt">GET READY TO BUZZ IN!</span>
+      </div>
+    `;
   }
 
-  applySubstitution(name, replacement) {
-    this.showToast(`Applied Substitution: ${replacement} for ${name}`, "#10b981");
-    this.closeSubstitutionsModal();
-    if (window.SFX) window.SFX.playStepComplete();
+  renderQuestionActiveHTML() {
+    const q = this.getCurrentQuestion();
+    const letters = ["A", "B", "C", "D"];
+    const colors = ["#f43f5e", "#0ea5e9", "#eab308", "#a855f7"];
+
+    return `
+      <div class="question-board-screen">
+        <!-- Top Status Bar -->
+        <div class="q-top-bar">
+          <div class="q-cat-pill">
+            <span>${this.selectedCategory.icon} ${this.selectedCategory.title.toUpperCase()}</span>
+          </div>
+          <div class="q-counter-pill">
+            QUESTION ${this.currentQuestionIndex + 1} OF ${this.selectedCategory.questions.length}
+          </div>
+          <div class="q-points-pill">
+            ★ ${q.basePoints} PTS + SPEED BONUS
+          </div>
+        </div>
+
+        <!-- Question Prompt -->
+        <div class="question-prompt-box">
+          <h2 class="question-text">${q.prompt}</h2>
+        </div>
+
+        <!-- Live Countdown Timer -->
+        <div class="countdown-track-wrapper">
+          <div class="countdown-bar-track">
+            <div id="question-timer-fill" class="countdown-bar-fill"></div>
+          </div>
+          <div class="countdown-time-label-row">
+            <span class="timer-desc">FASTEST ANSWER WINS UP TO +500 SPEED BONUS</span>
+            <span id="question-timer-text" class="timer-digits">15.0s</span>
+          </div>
+        </div>
+
+        <!-- 4 Multiple Choice Cards -->
+        <div class="answer-cards-grid">
+          ${q.options.map((opt, idx) => `
+            <div class="answer-card focusable" onclick="window.App.lockInPlayerAnswer('player-remote', ${idx})">
+              <div class="option-letter-badge" style="background: ${colors[idx]}">
+                ${letters[idx]}
+              </div>
+              <span class="option-label">${opt}</span>
+              <div class="locked-avatars-cluster"></div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Bottom Locked In Strip -->
+        <div class="bottom-locked-bar">
+          <div class="lock-indicator">
+            <span class="lock-icon">🔒</span>
+            <span id="locked-count-label">0 OF ${this.players.length} PLAYERS LOCKED IN</span>
+          </div>
+          <button class="simulate-ai-btn focusable" onclick="window.App.simulateQuickBuzzer()">
+            <span>🤖 Simulate iPhone Buzzer</span>
+          </button>
+        </div>
+      </div>
+    `;
   }
 
-  bindRemoteControls() {
-    // Virtual Apple Siri Remote Buttons
-    const dpadUp = document.getElementById('remote-up');
-    const dpadDown = document.getElementById('remote-down');
-    const dpadLeft = document.getElementById('remote-left');
-    const dpadRight = document.getElementById('remote-right');
-    const dpadCenter = document.getElementById('remote-center');
-    const remoteBack = document.getElementById('remote-back');
-    const remotePlay = document.getElementById('remote-play');
-    const remoteMic = document.getElementById('remote-mic');
+  renderAnswerRevealHTML() {
+    const q = this.getCurrentQuestion();
+    const correctOpt = q.options[q.correctIndex];
 
-    if (dpadUp) dpadUp.onclick = () => window.FocusEngine.navigate('up');
-    if (dpadDown) dpadDown.onclick = () => window.FocusEngine.navigate('down');
-    if (dpadLeft) dpadLeft.onclick = () => window.FocusEngine.navigate('left');
-    if (dpadRight) dpadRight.onclick = () => window.FocusEngine.navigate('right');
-    if (dpadCenter) dpadCenter.onclick = () => window.FocusEngine.selectCurrent();
-    if (remoteBack) remoteBack.onclick = () => {
-      const modal = document.querySelector('.modal-overlay.active');
-      if (modal) modal.classList.remove('active');
-      else this.prevStep();
-    };
-    if (remotePlay) remotePlay.onclick = () => {
-      if (this.timers[0]) this.toggleTimer(this.timers[0].id);
-    };
-    if (remoteMic) remoteMic.onclick = () => {
-      if (window.Voice) window.Voice.toggle();
-    };
+    return `
+      <div class="answer-reveal-screen">
+        <span class="reveal-eyebrow">ROUND RESULTS</span>
+
+        <div class="correct-answer-banner">
+          <div class="correct-header">
+            <span class="check-icon">✓</span>
+            <span>CORRECT ANSWER:</span>
+          </div>
+          <h2 class="correct-text">${correctOpt}</h2>
+        </div>
+
+        <div class="curio-card">
+          <span class="curio-bulb">💡</span>
+          <div class="curio-content">
+            <span class="curio-tag">TRIVIA CURIO</span>
+            <p>${q.explanation}</p>
+          </div>
+        </div>
+
+        <div class="round-scores-section">
+          <h3>ROUND SCORING & SPEED</h3>
+          <div class="round-players-grid">
+            ${this.players.map(p => {
+              const isCorrect = p.selectedAnswer === q.correctIndex;
+              return `
+                <div class="round-player-row ${isCorrect ? 'correct' : 'wrong'}">
+                  <div class="p-avatar-sm" style="background: ${p.color}">
+                    ${p.avatar}
+                  </div>
+                  <div class="p-score-meta">
+                    <span class="name">${p.name}</span>
+                    <span class="speed">${p.answerTime ? p.answerTime + 's' : 'No answer'} ${p.streak > 1 ? '• 🔥 ' + p.streak + 'x' : ''}</span>
+                  </div>
+                  <div class="points-badge ${isCorrect ? 'positive' : 'zero'}">
+                    ${isCorrect ? '+' + p.lastPoints : '0'}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="reveal-actions">
+          <button class="tv-btn primary focusable" onclick="window.App.advanceToScoreboard()">
+            <span>View Standings 🏆</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderScoreboardHTML() {
+    const ranked = [...this.players].sort((a, b) => b.score - a.score);
+    const isLast = this.currentQuestionIndex >= this.selectedCategory.questions.length - 1;
+
+    return `
+      <div class="scoreboard-screen">
+        <div class="sb-header">
+          <span class="sb-tag">ROUND ${this.currentQuestionIndex + 1} OF ${this.selectedCategory.questions.length} COMPLETE</span>
+          <h2>Current Leaderboard</h2>
+        </div>
+
+        <div class="leaderboard-stack">
+          ${ranked.map((p, idx) => `
+            <div class="leaderboard-row ${idx === 0 ? 'leader' : ''}">
+              <div class="rank-badge rank-${idx + 1}">#${idx + 1}</div>
+              <div class="p-avatar-disc" style="background: ${p.color}">
+                ${p.avatar}
+              </div>
+              <div class="p-details">
+                <span class="name">${p.name}</span>
+                <span class="sub">${p.correctCount}/${p.totalCount} Correct ${p.streak > 1 ? '• 🔥 ' + p.streak + ' Streak' : ''}</span>
+              </div>
+              <div class="score-display">${p.score} PTS</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="sb-actions">
+          <button class="tv-btn primary focusable" onclick="window.App.nextRoundOrFinish()">
+            <span>${isLast ? 'View Final Pub Champions 🎉' : 'Next Question →'}</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderWinnerPodiumHTML() {
+    const ranked = [...this.players].sort((a, b) => b.score - a.score);
+    const winner = ranked[0];
+    const runnerUp = ranked[1];
+    const third = ranked[2];
+
+    const streakMVP = [...this.players].sort((a, b) => b.highestStreak - a.highestStreak)[0];
+    const accuracyMVP = [...this.players].sort((a, b) => (b.correctCount / (b.totalCount || 1)) - (a.correctCount / (a.totalCount || 1)))[0];
+
+    return `
+      <div class="winner-screen">
+        <div class="winner-crown-row">
+          <span class="crown-icon">👑</span>
+          <span class="champs-tag">PUB QUIZ CHAMPIONS</span>
+          <h1 class="winner-name">${winner ? winner.name : 'Trivia Champion'}</h1>
+        </div>
+
+        <div class="podium-stage">
+          <!-- 2nd Place -->
+          ${runnerUp ? `
+            <div class="podium-col col-2">
+              <div class="podium-avatar" style="background: ${runnerUp.color}">
+                ${runnerUp.avatar}
+              </div>
+              <span class="podium-name">${runnerUp.name}</span>
+              <span class="podium-score">${runnerUp.score} PTS</span>
+              <div class="podium-block block-2">
+                <span>#2</span>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- 1st Place -->
+          ${winner ? `
+            <div class="podium-col col-1">
+              <div class="podium-avatar winner-avatar" style="background: ${winner.color}">
+                ${winner.avatar}
+              </div>
+              <span class="podium-name">${winner.name}</span>
+              <span class="podium-score gold">${winner.score} PTS</span>
+              <div class="podium-block block-1">
+                <span>#1 🏆</span>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- 3rd Place -->
+          ${third ? `
+            <div class="podium-col col-3">
+              <div class="podium-avatar" style="background: ${third.color}">
+                ${third.avatar}
+              </div>
+              <span class="podium-name">${third.name}</span>
+              <span class="podium-score">${third.score} PTS</span>
+              <div class="podium-block block-3">
+                <span>#3</span>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- MVP Badges -->
+        <div class="mvp-strip">
+          <div class="mvp-pill">
+            <span class="badge-icon">🔥</span>
+            <div>
+              <span class="m-title">LONGEST HOT STREAK</span>
+              <span class="m-val">${streakMVP.name} • ${streakMVP.highestStreak} In A Row</span>
+            </div>
+          </div>
+
+          <div class="mvp-pill">
+            <span class="badge-icon">🎯</span>
+            <div>
+              <span class="m-title">ACCURACY ACE</span>
+              <span class="m-val">${accuracyMVP.name} • ${Math.round((accuracyMVP.correctCount / (accuracyMVP.totalCount || 1)) * 100)}% Correct</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="winner-actions">
+          <button class="tv-btn secondary focusable" onclick="window.App.setScreenState('lobby')">
+            <span>↺ Play Again</span>
+          </button>
+          <button class="tv-btn primary focusable" onclick="window.App.goToCategorySelect()">
+            <span>New Category Pack 🗂️</span>
+          </button>
+        </div>
+      </div>
+    `;
   }
 }
 
-window.App = new KitchenCrewApp();
 window.addEventListener('DOMContentLoaded', () => {
-  window.App.init();
+  window.App = new TriviaNightApp();
 });

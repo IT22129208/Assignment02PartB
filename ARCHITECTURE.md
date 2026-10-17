@@ -1,112 +1,124 @@
-# KitchenCrew: Technical Architecture Specification
+# TriviaNight TV: Technical Architecture Specification
 
-## 1. System Overview & Architecture Diagram
+## 1. System Overview & Topology
 
-KitchenCrew follows a distributed Master-Worker (Conductor-Substation) topology powered by Apple's ecosystem frameworks (`SwiftUI`, `MultipeerConnectivity`, `Speech`, `AVFoundation`, and `Combine`).
+TriviaNight TV transforms the living room Apple TV 4K into an interactive pub quiz arena. Built native to the Apple ecosystem using **SwiftUI for tvOS**, **FocusEngine**, **MultipeerConnectivity**, and **Swift Concurrency**, the game coordinates simultaneous multi-user buzzer lock-ins across Siri Remotes and paired iPhones without third-party servers.
 
 ```mermaid
 graph TD
-    subgraph AppleTV["tvOS Conductor (Apple TV 4K)"]
-        TVApp["KitchenCrewTVApp"]
-        VM["TVConductorViewModel"]
+    subgraph AppleTV["tvOS Host Conductor (Apple TV 4K)"]
+        TVApp["TriviaNightTVApp"]
+        VM["TVTriviaGameViewModel (@MainActor)"]
         Focus["FocusEngine (@FocusState)"]
-        VoiceService["KitchenVoiceService (Speech / AVAudioEngine)"]
-        AudioFX["AudioFeedbackEngine (System Chimes)"]
-        MultiCam["MultiAnglePlayer (AVPlayer / HLS)"]
-        MPServer["Multipeer Advertiser (Host Conductor)"]
+        AudioFX["TriviaAudioEngine (AudioToolbox)"]
+        MPServer["TriviaSyncManager (MCNearbyServiceAdvertiser)"]
+        TimerLoop["Countdown Engine (Task.sleep)"]
         
         TVApp --> VM
         VM --> Focus
-        VM --> VoiceService
         VM --> AudioFX
-        VM --> MultiCam
         VM --> MPServer
+        VM --> TimerLoop
     end
 
-    subgraph iOSPeers["iOS Companion Stations"]
-        SubA["Chef Alex (iPad Pro) - Prep Station"]
-        SubB["Chef Sarah (iPhone 15) - Sauté Station"]
-        SubC["Chef Dave (iPhone) - Plating Station"]
+    subgraph Controllers["Living Room Input Devices"]
+        Remote["Siri Remote (Host Player 1)"]
+        PhoneA["Sarah M. (iPhone 15 Pro)"]
+        PhoneB["Dave K. (iPhone)"]
+        PhoneC["Chloe T. (iPad Mini)"]
     end
 
-    MPServer <== P2P Wi-Fi & Bluetooth LE ==> SubA
-    MPServer <== P2P Wi-Fi & Bluetooth LE ==> SubB
-    MPServer <== P2P Wi-Fi & Bluetooth LE ==> SubC
+    Remote -- "Clickpad Touch & FocusState" --> Focus
+    MPServer <== "P2P Wi-Fi & Bluetooth LE (TriviaSyncPayload)" ==> PhoneA
+    MPServer <== "P2P Wi-Fi & Bluetooth LE (TriviaSyncPayload)" ==> PhoneB
+    MPServer <== "P2P Wi-Fi & Bluetooth LE (TriviaSyncPayload)" ==> PhoneC
 ```
 
 ---
 
 ## 2. Component Breakdown
 
-### 2.1. Apple TV Host Conductor (`KitchenCrewTV`)
-* **`TVConductorViewModel`**: Observable master conductor maintaining the centralized `KitchenSession` state, step progression, camera selection, and master kitchen timers.
-* **`MultiAngleVideoPlayerView`**: Frame-accurate multi-angle player supporting instant switching between Wide Shot, Pan Macro Sizzle, and Overhead Plating, alongside a synchronized Split-Screen dual-stream view.
-* **`BigScreenTimerView`**: 10-foot legibility timers with 44pt monospace numerals, radial progress dials, and audible/visual alert pulses when under 30 seconds.
-* **`CrewStationStatusStripView`**: Real-time HUD showing connected household members, active subtasks, and completion percentages.
-* **`QuickActionModalView`**: Modal customizer triggered by clicking the Siri Remote trackpad to make instant ingredient substitutions (e.g., dairy-free, allergen-free).
-* **`VoiceWaveformOverlayView`**: Siri-like animated waveform displaying real-time speech feedback and intent acknowledgement.
+### 2.1. Apple TV Host Conductor (`TriviaNightTV`)
+* **`TVTriviaGameViewModel`**: `@MainActor` state manager that drives the full trivia game lifecycle (`lobby`, `categorySelect`, `countdown`, `questionActive`, `answerReveal`, `scoreboard`, `finalPodium`). Calculates real-time speed bonuses and consecutive streak multipliers.
+* **`LobbyView`**: 10-foot room overview displaying the local room code (`PUB-4K`), live connected player pills, controller badges, and Siri Remote focusable start button.
+* **`CategorySelectView`**: 2D grid of 7 distinct category packs (Movies, Tech, Mathematics & Logic, Music, Pub Trivia, History, Gaming) with FocusEngine scaling.
+* **`QuestionTimerBoardView`**: High-impact question screen featuring 36pt rounded typography, an animated 15-second countdown progress bar that shifts from emerald green to amber to pulsing red, and 4 colored answer cards (A, B, C, D) displaying real-time player lock-in avatars.
+* **`AnswerRevealView`**: Highlights the correct answer in glowing emerald green, displays a "Trivia Curio" educational fact, and itemizes points earned with speed bonuses.
+* **`RoundScoreboardView`**: Live leaderboard displaying rank badges (#1 Gold, #2 Silver, #3 Bronze), total scores, and consecutive hot streak flame indicators.
+* **`WinnerCelebrationView`**: 3D-styled celebratory podium with 1st, 2nd, and 3rd pedestals, golden crown fanfare, and pub quiz MVP awards ("Longest Hot Streak", "Accuracy Ace").
 
-### 2.2. iOS Companion App (`KitchenCrewCompanion`)
-* **`CompanionStationViewModel`**: Station-specific view model receiving step updates from the TV, displaying assigned tasks (Mise-en-place vs. Pan Searing), providing local haptic feedback, and transmitting task completion signals back to the Apple TV.
-* **`StationChecklistView`**: Touch-optimized checklists designed for iPads and iPhones stationed on kitchen counters.
+### 2.2. iOS Companion Buzzer App (`TriviaNightCompanion`)
+* **`CompanionBuzzerViewModel`**: Connects automatically to the Apple TV over zero-configuration Bonjour Multipeer Connectivity, manages player profile state (`playerName`, `selectedAvatar`, `selectedColorHex`), broadcasts `.playerJoin(player:)` updates to the TV, and transmits timestamped answer packets.
+* **`CompanionBuzzerView`**: Two-stage mobile interface:
+  1. **Pre-Game Profile Setup**: Clean input screen with nickname `TextField`, avatar selection grid, buzzer color picker, and "Join Game on TV 🚀" action.
+  2. **Active Buzzer View**: Touch-optimized interface with 4 large colored quadrant buttons (A, B, C, D) matching the big screen cards with tactile press responses, locked-in visual confirmation, and an "Edit Name" quick toggle.
 
 ---
 
 ## 3. Communication & Synchronization Protocol
 
-### 3.1. Multipeer Packet Schema (`SyncPayload`)
-State is synchronized across devices via encoded Swift `Codable` structs:
+### 3.1. Multipeer Packet Schema (`TriviaSyncPayload`)
+Device communication uses native Swift `Codable` packets streamed over peer-to-peer Wi-Fi and Bluetooth LE without requiring internet access:
 
 ```swift
-public enum SyncPayload: Codable {
-    case stepChange(newIndex: Int)
-    case taskCompleted(userId: String, taskId: String, newProgress: Double)
-    case timerUpdate(timer: KitchenTimer)
-    case timerAlert(timerId: UUID, message: String)
-    case cameraAngleChanged(angle: CameraAngle)
-    case ingredientSubstituted(ingredientName: String, substitution: String)
+public enum TriviaSyncPayload: Codable {
+    case playerJoin(player: Player)
+    case playerAnswer(playerId: String, answerIndex: Int, timeElapsed: Double)
+    case hostStateUpdate(stateName: String, questionIndex: Int, timeRemaining: Double)
+    case gameRestart
 }
 ```
 
-### 3.2. Step Prerequisite Gating
-Steps define dependencies using `dependsOnStepId`:
-```swift
-RecipeStep(
-    id: 4,
-    title: "Hard Sear: The 90-Second Sear",
-    instruction: "Crank pan heat until smoking hot. Sear untouched for 90 seconds.",
-    assignedStation: .saute,
-    recommendedAngle: .macroPan,
-    durationSeconds: 90,
-    requiresTimer: true,
-    dependsOnStepId: 3 // Requires Step 3 (Render Pancetta) to be marked complete
-)
-```
+### 3.2. Low-Latency Speed Scoring Algorithm
+Points are rewarded based on both accuracy and reflex speed:
+
+$$\text{Points} = \left(\text{Base Points} + \text{Speed Bonus}\right) \times \text{Streak Multiplier}$$
+
+1. **Base Points**: 1,000 pts per correct answer.
+2. **Speed Bonus**: Up to +500 pts scaled linearly: $\text{Bonus} = \text{round}\left(500 \times \frac{t_{\text{remaining}}}{t_{\text{total}}}\right)$.
+3. **Streak Multiplier**: Consecutive correct answers stack a 1.25x to 2.0x multiplier, igniting flame badges in the living room HUD.
 
 ---
 
-## 4. Voice Processing Pipeline
+## 4. Concurrency & Timer Pipeline
 
-Kitchen environments feature high background acoustic noise. The speech recognition pipeline implements three layers of noise suppression:
+TriviaNight TV implements drift-free countdown timing via modern Swift Concurrency (`Task` and `Task.sleep`):
 
-1. **Near-field Hardware Filtering**: Utilizes the beamforming microphone array on the Siri Remote or paired HomePod to isolate directional voice audio from ambient kitchen noise.
-2. **Culinary Context Priming**: Configures `SFSpeechAudioBufferRecognitionRequest.contextualStrings` with specialized vocabulary (e.g., *"arrosé"*, *"shallots"*, *"sear"*, *"mousseline"*), reducing phonetic hallucination.
-3. **Deterministic Intent Classifier**:
-   - `nextStep`: "next", "continue", "done", "step complete"
-   - `previousStep`: "back", "previous"
-   - `startTimer`: regex-extracted integers + unit detection ("seconds" / "minutes")
-   - `switchCamera`: "pan", "macro", "wide", "chef", "plating"
-   - `toggleSplitScreen`: "split screen", "dual", "both"
-   - `querySubstitution`: "substitute", "replace", "alternative"
+```swift
+private func startCountdownTimer() {
+    timerTask?.cancel()
+    timerTask = Task {
+        while self.isTimerRunning && self.timeRemaining > 0 {
+            try? await Task.sleep(nanoseconds: 100_000_000) // 100ms precision
+            if Task.isCancelled { break }
+            
+            self.timeRemaining = max(0, self.timeRemaining - 0.1)
+            
+            // Audible cue on integer seconds when urgent (< 5s)
+            if self.timeRemaining <= 5.0 && self.timeRemaining > 0 {
+                let rounded = round(self.timeRemaining * 10) / 10
+                if rounded.truncatingRemainder(dividingBy: 1.0) == 0 {
+                    self.audioEngine.play(.timerTick)
+                }
+            }
+            
+            if self.timeRemaining <= 0 {
+                self.evaluateRoundAnswers()
+                break
+            }
+        }
+    }
+}
+```
 
 ---
 
 ## 5. tvOS 10-Foot Design Guidelines Compliance
 
-| tvOS Guideline | KitchenCrew Implementation |
+| tvOS Guideline | TriviaNight TV Implementation |
 | :--- | :--- |
-| **Viewing Distance** | Designed for 10–15 feet viewing distance with 32pt+ headers and 44pt+ monospace timer digits. |
-| **Focus Engine** | Strict `@FocusState` compliance; all interactive cards scale up by 1.05x with dynamic specular sheen and shadow depth on focus. |
-| **Siri Remote Ergonomics** | Swipe left/right on trackpad moves between steps; clicking the trackpad opens culinary quick tweaks; Play/Pause toggles active timers. |
-| **Safe Margins** | 48pt horizontal padding and 32pt vertical padding to comply with tvOS overscan and screen edge restrictions. |
-| **Audio Feedback** | System audio cues triggered on focus movement (1104), step completion (1025), and timer completion (1005). |
+| **Viewing Distance (10-Foot)** | 32pt+ heavy question prompts, 64pt room code, and 48pt category cards optimized for 10–15 feet living room visibility. |
+| **FocusEngine (@FocusState)** | Strict focus state compliance: cards scale up by 1.06x with white specular border highlights and drop shadows upon remote selection. |
+| **Siri Remote Ergonomics** | Swipe on clickpad navigates the 2x2 grid smoothly; center press locks in the host answer; Back button returns to previous menu. |
+| **Safe Margins** | 48pt horizontal margins and 32pt vertical margins prevent content clipping on television overscan boundaries. |
+| **Responsive Audio Feedback** | AudioToolbox system chimes on remote click (1104), countdown tick (1103), buzzer lock-in (1001), correct fanfare (1025), and victory podium (1026). |
