@@ -33,9 +33,12 @@ public struct CompanionBuzzerView: View {
             .navigationTitle("TriviaNight Mobile")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
-                if localName.isEmpty {
+                if localName.isEmpty && !viewModel.playerName.isEmpty {
                     localName = viewModel.playerName
                 }
+            }
+            .onChange(of: localName) { newName in
+                viewModel.updateLiveNameDraft(name: newName, avatar: localAvatar, colorHex: localColorHex)
             }
         }
     }

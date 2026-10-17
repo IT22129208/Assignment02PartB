@@ -196,7 +196,7 @@ window.TriviaData = {
   initialPlayers: [
     {
       id: "player-remote",
-      name: "Sam (Host)",
+      name: "Host (Siri Remote)",
       avatar: "🎮",
       color: "#38bdf8",
       controller: "Siri Remote",
@@ -208,14 +208,15 @@ window.TriviaData = {
       selectedAnswer: null,
       isLockedIn: false,
       answerTime: null,
-      lastPoints: 0
+      lastPoints: 0,
+      isReady: true
     },
     {
-      id: "player-sarah",
-      name: "Sarah M.",
+      id: "player-mobile",
+      name: "Alex",
       avatar: "✨",
       color: "#f43f5e",
-      controller: "iPhone",
+      controller: "iPhone Companion",
       score: 0,
       streak: 0,
       highestStreak: 0,
@@ -224,39 +225,8 @@ window.TriviaData = {
       selectedAnswer: null,
       isLockedIn: false,
       answerTime: null,
-      lastPoints: 0
-    },
-    {
-      id: "player-dave",
-      name: "Dave K.",
-      avatar: "⚡",
-      color: "#eab308",
-      controller: "iPhone",
-      score: 0,
-      streak: 0,
-      highestStreak: 0,
-      correctCount: 0,
-      totalCount: 0,
-      selectedAnswer: null,
-      isLockedIn: false,
-      answerTime: null,
-      lastPoints: 0
-    },
-    {
-      id: "player-chloe",
-      name: "Chloe T.",
-      avatar: "🔥",
-      color: "#a855f7",
-      controller: "iPad",
-      score: 0,
-      streak: 0,
-      highestStreak: 0,
-      correctCount: 0,
-      totalCount: 0,
-      selectedAnswer: null,
-      isLockedIn: false,
-      answerTime: null,
-      lastPoints: 0
+      lastPoints: 0,
+      isReady: false
     }
   ]
 };

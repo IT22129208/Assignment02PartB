@@ -336,6 +336,28 @@ body {
   color: rgba(255, 255, 255, 0.6);
 }
 
+.player-meta .p-status {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.player-meta .p-status.ready {
+  color: #10b981;
+}
+
+.player-meta .p-status.syncing {
+  color: #38bdf8;
+  animation: pulse-sync-text 1.5s infinite;
+}
+
+@keyframes pulse-sync-text {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
 .lobby-actions {
   display: flex;
   justify-content: center;

@@ -16,9 +16,38 @@ class TriviaNightApp {
   }
 
   init() {
+    this.initViewMode();
     this.bindEvents();
     this.bindSyncBus();
+    this.fetchSyncInfo();
     this.renderCurrentState();
+  }
+
+  initViewMode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    if (mode === 'tv' || mode === 'mobile' || mode === 'split') {
+      this.setViewMode(mode);
+    }
+  }
+
+  fetchSyncInfo() {
+    fetch('/api/sync/info')
+      .then(res => res.json())
+      .then(info => {
+        const badge = document.getElementById('local-ip-badge');
+        if (badge && info.mobileUrl) {
+          badge.textContent = info.mobileUrl;
+        }
+      })
+      .catch(() => {});
+  }
+
+  setViewMode(mode) {
+    document.body.className = `mode-${mode}`;
+    document.querySelectorAll('.sim-tab').forEach(t => t.classList.remove('active'));
+    const btn = document.getElementById(`mode-${mode}-btn`);
+    if (btn) btn.classList.add('active');
   }
 
   bindEvents() {
@@ -35,18 +64,60 @@ class TriviaNightApp {
     document.querySelectorAll('.companion-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const choiceIdx = parseInt(e.currentTarget.getAttribute('data-index'));
-        this.lockInPlayerAnswer('player-sarah', choiceIdx);
+        this.lockInPlayerAnswer('player-mobile', choiceIdx);
+        window.SyncBus.sendCompanionBuzzer('player-mobile', choiceIdx);
       });
     });
+  }
 
-    // iPhone Avatar Picker
-    document.querySelectorAll('.c-avatar-opt').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.c-avatar-opt').forEach(b => b.classList.remove('is-selected'));
-        e.currentTarget.classList.add('is-selected');
-        window.SFX.playFocusClick();
-      });
-    });
+  // Live typing handler: instantly updates the TV screen as the player types!
+  handleCompanionNameInput(value) {
+    const name = value.trim() || 'Alex';
+    const companionPlayer = this.players.find(p => p.id === 'player-mobile') || this.players[1];
+    if (companionPlayer) {
+      companionPlayer.name = name;
+    }
+
+    // Direct TV DOM update with pulse effect
+    const tvPill = document.getElementById('tv-player-pill-mobile');
+    const tvName = document.getElementById('tv-player-name-mobile');
+    if (tvName) {
+      tvName.textContent = name;
+    }
+    if (tvPill) {
+      tvPill.classList.add('highlight-active');
+      clearTimeout(this.typeTimer);
+      this.typeTimer = setTimeout(() => {
+        tvPill.classList.remove('highlight-active');
+      }, 800);
+    } else if (this.state === 'lobby') {
+      this.renderCurrentState();
+    }
+
+    const avatar = companionPlayer ? companionPlayer.avatar : '✨';
+    const color = companionPlayer ? companionPlayer.color : '#f43f5e';
+    window.SyncBus.updatePlayerProfile(name, avatar, color, false);
+  }
+
+  handleCompanionAvatarSelect(avatar, btn) {
+    document.querySelectorAll('.c-avatar-opt').forEach(b => b.classList.remove('is-selected'));
+    if (btn) btn.classList.add('is-selected');
+
+    const companionPlayer = this.players.find(p => p.id === 'player-mobile') || this.players[1];
+    if (companionPlayer) {
+      companionPlayer.avatar = avatar;
+    }
+
+    const tvAvatar = document.getElementById('tv-avatar-mobile');
+    if (tvAvatar) tvAvatar.textContent = avatar;
+
+    const compAvatar = document.getElementById('companion-player-avatar');
+    if (compAvatar) compAvatar.textContent = avatar;
+
+    const name = companionPlayer ? companionPlayer.name : 'Alex';
+    const color = companionPlayer ? companionPlayer.color : '#f43f5e';
+    window.SyncBus.updatePlayerProfile(name, avatar, color, companionPlayer ? companionPlayer.isReady : false);
+    window.SFX.playFocusClick();
   }
 
   handleCompanionJoin() {
@@ -55,11 +126,12 @@ class TriviaNightApp {
     const avatar = selectedAvatarBtn ? selectedAvatarBtn.getAttribute('data-avatar') : '✨';
     const name = (input && input.value.trim()) ? input.value.trim() : 'Alex';
 
-    // Update Sarah M. (the companion player) to this custom name and avatar
-    const companionPlayer = this.players.find(p => p.id === 'player-sarah');
+    // Update companion player state
+    const companionPlayer = this.players.find(p => p.id === 'player-mobile') || this.players[1];
     if (companionPlayer) {
       companionPlayer.name = name;
       companionPlayer.avatar = avatar;
+      companionPlayer.isReady = true;
     }
 
     // Update iPhone companion display
@@ -68,7 +140,7 @@ class TriviaNightApp {
     if (nameEl) nameEl.textContent = name;
     if (avatarEl) avatarEl.textContent = avatar;
 
-    // Switch views in iPhone
+    // Switch views on iPhone
     const joinView = document.getElementById('companion-join-view');
     const buzzerView = document.getElementById('companion-buzzer-view');
     if (joinView) joinView.style.display = 'none';
@@ -76,6 +148,9 @@ class TriviaNightApp {
 
     window.SFX.playBuzzerLock();
     this.showToast(`👋 ${name} joined on iPhone!`, '#f43f5e');
+
+    // Broadcast across all connected devices and tabs
+    window.SyncBus.updatePlayerProfile(name, avatar, companionPlayer?.color || '#f43f5e', true);
 
     // Re-render lobby on TV if currently in lobby
     if (this.state === 'lobby') {
@@ -88,12 +163,73 @@ class TriviaNightApp {
     const buzzerView = document.getElementById('companion-buzzer-view');
     if (joinView) joinView.style.display = 'flex';
     if (buzzerView) buzzerView.style.display = 'none';
+    
+    const input = document.getElementById('companion-name-input');
+    if (input) {
+      const companionPlayer = this.players.find(p => p.id === 'player-mobile') || this.players[1];
+      if (companionPlayer && companionPlayer.name !== 'Alex') {
+        input.value = companionPlayer.name;
+      }
+      input.focus();
+    }
     window.SFX.playFocusClick();
   }
 
   bindSyncBus() {
+    // Remote player join or live name updates (from real phone or another tab)
+    window.SyncBus.on('playerUpdate', (payload, fromRemote) => {
+      let p = this.players.find(pl => pl.id === payload.id);
+      if (!p) {
+        p = {
+          id: payload.id,
+          name: payload.name,
+          avatar: payload.avatar,
+          color: payload.color || '#f43f5e',
+          controller: payload.controller || 'iPhone',
+          score: 0,
+          streak: 0,
+          highestStreak: 0,
+          correctCount: 0,
+          totalCount: 0,
+          selectedAnswer: null,
+          isLockedIn: false,
+          answerTime: null,
+          lastPoints: 0,
+          isReady: payload.isReady
+        };
+        this.players.push(p);
+      } else {
+        if (payload.name) p.name = payload.name;
+        if (payload.avatar) p.avatar = payload.avatar;
+        if (payload.color) p.color = payload.color;
+        p.isReady = payload.isReady;
+      }
+
+      if (fromRemote) {
+        // Also update local mobile companion input if in mobile mode
+        const nameEl = document.getElementById('companion-player-name');
+        if (nameEl) nameEl.textContent = p.name;
+        if (payload.isReady) {
+          this.showToast(`👋 ${p.name} synced on iPhone!`, p.color);
+          window.SFX.playBuzzerLock();
+        }
+      }
+
+      if (this.state === 'lobby') {
+        this.renderCurrentState();
+      }
+    });
+
+    // Remote player answers (from real phone)
     window.SyncBus.on('playerAnswer', (payload) => {
-      this.lockInPlayerAnswer(payload.playerId, payload.answerIndex);
+      this.lockInPlayerAnswer(payload.playerId, payload.answerIndex, payload.answerTime);
+    });
+
+    // Remote game state transitions
+    window.SyncBus.on('gameState', (payload) => {
+      if (payload.state && payload.state !== this.state) {
+        this.setScreenState(payload.state);
+      }
     });
   }
 
@@ -106,6 +242,7 @@ class TriviaNightApp {
 
   setScreenState(newState) {
     this.state = newState;
+    window.SyncBus.emit('gameState', { state: newState });
     this.renderCurrentState();
     
     // Auto focus the primary action element
@@ -320,17 +457,17 @@ class TriviaNightApp {
   }
 
   updateCompanionUI() {
-    const sarah = this.players.find(p => p.id === 'player-sarah');
+    const mobilePlayer = this.players.find(p => p.id === 'player-mobile') || this.players[1];
     const statusText = document.getElementById('companion-status-text');
     const cards = document.querySelectorAll('.companion-btn');
 
-    if (sarah && sarah.isLockedIn) {
+    if (mobilePlayer && mobilePlayer.isLockedIn) {
       if (statusText) {
         statusText.textContent = "Answer Locked In!";
         statusText.style.color = "#10b981";
       }
       cards.forEach((c, idx) => {
-        if (idx === sarah.selectedAnswer) {
+        if (idx === mobilePlayer.selectedAnswer) {
           c.classList.add('is-locked');
         } else {
           c.classList.remove('is-locked');
@@ -452,7 +589,7 @@ class TriviaNightApp {
             <span class="code-badge">LOCAL LIVING ROOM CODE</span>
             <div class="room-code-display">PUB-4K</div>
             <div class="connect-hints">
-              <p>📱 Open TriviaNight Companion on your iPhone to join</p>
+              <p>📱 Enter your name on iPhone to appear right here</p>
               <p class="sub-hint">Or click with this Siri Remote to play as host</p>
             </div>
           </div>
@@ -465,13 +602,14 @@ class TriviaNightApp {
             </div>
             <div class="players-grid">
               ${this.players.map(p => `
-                <div class="player-roster-pill">
-                  <div class="player-avatar-circle" style="background: ${p.color}">
+                <div class="player-roster-pill ${p.id === 'player-mobile' ? 'is-mobile-player highlight-active' : ''}" id="${p.id === 'player-mobile' ? 'tv-player-pill-mobile' : 'player-pill-' + p.id}">
+                  <div class="player-avatar-circle" id="${p.id === 'player-mobile' ? 'tv-avatar-mobile' : ''}" style="background: ${p.color}">
                     ${p.avatar}
                   </div>
                   <div class="player-meta">
-                    <span class="p-name">${p.name}</span>
+                    <span class="p-name" id="${p.id === 'player-mobile' ? 'tv-player-name-mobile' : ''}">${p.name}</span>
                     <span class="p-controller">● ${p.controller}</span>
+                    ${p.isReady ? '<span class="p-status ready">● READY TO PLAY</span>' : '<span class="p-status syncing">● SYNCED (TYPING NAME...)</span>'}
                   </div>
                 </div>
               `).join('')}

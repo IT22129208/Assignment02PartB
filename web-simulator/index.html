@@ -10,7 +10,33 @@
   <link rel="stylesheet" href="styles/companion.css">
   <link rel="stylesheet" href="styles/presentation.css">
 </head>
-<body>
+<body class="mode-split">
+
+  <!-- Top Simulator View Switcher & Wi-Fi Sync Indicator -->
+  <header class="simulator-top-bar">
+    <div class="sim-brand-pill">
+      <span class="sim-brand-icon">🍻</span>
+      <span class="sim-brand-text">TRIVIANIGHT SIMULATOR</span>
+    </div>
+
+    <div class="sim-mode-toggle">
+      <button id="mode-split-btn" class="sim-tab active" onclick="window.App.setViewMode('split')" title="View TV and Mobile Buzzer together">
+        🖥️ Split View (TV + Mobile)
+      </button>
+      <button id="mode-tv-btn" class="sim-tab" onclick="window.App.setViewMode('tv')" title="View Apple TV Display only">
+        📺 TV Screen Only
+      </button>
+      <button id="mode-mobile-btn" class="sim-tab" onclick="window.App.setViewMode('mobile')" title="View Mobile Controller only">
+        📱 Mobile Phone Only
+      </button>
+    </div>
+
+    <div class="sim-real-device-hint">
+      <span class="pulse-online-dot"></span>
+      <span class="hint-label">REAL-TIME SYNC:</span>
+      <span class="hint-text">Open on your real phone: <strong id="local-ip-badge">http://10.86.173.86:3000/?mode=mobile</strong></span>
+    </div>
+  </header>
 
   <!-- Floating 10-Foot Toast Banner -->
   <div id="tv-toast-banner" class="tv-toast-banner">
@@ -22,7 +48,7 @@
   <div class="simulator-layout">
     
     <!-- Left: Main Apple TV 4K 16:9 Display Frame -->
-    <main class="tv-frame-wrapper">
+    <main class="tv-frame-wrapper" id="tv-frame-wrapper">
       
       <!-- Top tvOS Header Bar -->
       <header class="tv-top-header">
@@ -48,14 +74,14 @@
     </main>
 
     <!-- Center/Right: iPhone Companion Buzzer Controller -->
-    <aside class="companion-frame-wrapper" title="Paired iPhone 15 Pro Companion Buzzer">
+    <aside class="companion-frame-wrapper" id="companion-frame-wrapper" title="Paired iPhone 15 Pro Companion Buzzer">
       <div class="iphone-screen">
         <div class="iphone-island"></div>
 
         <div class="companion-header">
           <div class="companion-status-row">
             <span class="conn-dot"></span>
-            <span class="conn-text">Apple TV Synced</span>
+            <span class="conn-text" id="companion-conn-text">Apple TV Synced</span>
           </div>
           <span class="companion-room-pill">ROOM: PUB-4K</span>
         </div>
@@ -68,19 +94,31 @@
           </div>
 
           <div class="c-input-group">
-            <label>YOUR NAME</label>
-            <input id="companion-name-input" type="text" placeholder="e.g. Alex" value="Sarah M." maxlength="16" />
+            <div class="c-label-row">
+              <label for="companion-name-input">YOUR NAME</label>
+              <span class="live-sync-pill">● LIVE ON TV</span>
+            </div>
+            <input 
+              id="companion-name-input" 
+              type="text" 
+              placeholder="Type your name here..." 
+              value="" 
+              maxlength="16" 
+              autocomplete="off"
+              oninput="window.App.handleCompanionNameInput(this.value)" 
+            />
+            <p class="c-sync-hint">👁️ Watch the TV screen — your name appears live as you type!</p>
           </div>
 
           <div class="c-avatar-picker">
             <label>CHOOSE AVATAR</label>
             <div class="c-avatar-options">
-              <button class="c-avatar-opt is-selected" data-avatar="✨">✨</button>
-              <button class="c-avatar-opt" data-avatar="⚡">⚡</button>
-              <button class="c-avatar-opt" data-avatar="🔥">🔥</button>
-              <button class="c-avatar-opt" data-avatar="🎮">🎮</button>
-              <button class="c-avatar-opt" data-avatar="🎯">🎯</button>
-              <button class="c-avatar-opt" data-avatar="🚀">🚀</button>
+              <button class="c-avatar-opt is-selected" data-avatar="✨" onclick="window.App.handleCompanionAvatarSelect('✨', this)">✨</button>
+              <button class="c-avatar-opt" data-avatar="⚡" onclick="window.App.handleCompanionAvatarSelect('⚡', this)">⚡</button>
+              <button class="c-avatar-opt" data-avatar="🔥" onclick="window.App.handleCompanionAvatarSelect('🔥', this)">🔥</button>
+              <button class="c-avatar-opt" data-avatar="🎮" onclick="window.App.handleCompanionAvatarSelect('🎮', this)">🎮</button>
+              <button class="c-avatar-opt" data-avatar="🎯" onclick="window.App.handleCompanionAvatarSelect('🎯', this)">🎯</button>
+              <button class="c-avatar-opt" data-avatar="🚀" onclick="window.App.handleCompanionAvatarSelect('🚀', this)">🚀</button>
             </div>
           </div>
 
@@ -94,7 +132,7 @@
           <div class="companion-player-card">
             <div id="companion-player-avatar" class="c-avatar">✨</div>
             <div class="c-meta">
-              <span id="companion-player-name" class="c-name">Sarah M.</span>
+              <span id="companion-player-name" class="c-name">Player</span>
               <span id="companion-status-text" class="c-status">Look at TV and buzz in!</span>
             </div>
             <button class="c-edit-profile-btn" onclick="window.App.handleCompanionEditProfile()" title="Change Name">
@@ -126,7 +164,7 @@
   </div>
 
   <!-- Virtual Siri Remote Floating Widget -->
-  <div class="remote-widget-container">
+  <div class="remote-widget-container" id="remote-widget-container">
     <div class="siri-remote-body">
       <div class="remote-mic-pinhole"></div>
 
@@ -144,7 +182,7 @@
       <div class="remote-buttons-grid">
         <button id="remote-menu" class="remote-pill-btn" title="Back / Menu Button">〈</button>
         <button class="remote-pill-btn" title="TV Home Button">📺</button>
-        <button id="remote-playpause" class="remote-pill-btn" title="Simulate iPhone Buzzer">▶‖</button>
+        <button id="remote-playpause" class="remote-pill-btn" title="Simulate Siri Remote Select">▶‖</button>
         <button class="remote-pill-btn remote-mic-btn" title="Siri Voice Button">🎙️</button>
       </div>
     </div>

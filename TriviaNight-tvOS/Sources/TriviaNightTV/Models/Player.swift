@@ -65,27 +65,6 @@ public struct Player: Identifiable, Codable, Hashable {
             avatarIcon: "gamecontroller.fill",
             colorHex: "#38bdf8", // Sky blue
             controllerType: .siriRemote
-        ),
-        Player(
-            id: "player-sarah",
-            name: "Sarah M.",
-            avatarIcon: "sparkles",
-            colorHex: "#f43f5e", // Rose red
-            controllerType: .companionPhone
-        ),
-        Player(
-            id: "player-dave",
-            name: "Dave K.",
-            avatarIcon: "bolt.fill",
-            colorHex: "#eab308", // Gold
-            controllerType: .companionPhone
-        ),
-        Player(
-            id: "player-chloe",
-            name: "Chloe T.",
-            avatarIcon: "flame.fill",
-            colorHex: "#a855f7", // Violet
-            controllerType: .companionPhone
         )
     ]
 }

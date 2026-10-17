@@ -7,7 +7,7 @@ import MultipeerConnectivity
 public final class CompanionBuzzerViewModel: ObservableObject {
     @Published public var hasJoined: Bool = false
     @Published public var inputName: String = ""
-    @Published public var playerName: String = "Sarah M."
+    @Published public var playerName: String = ""
     @Published public var selectedAvatar: String = "sparkles"
     @Published public var selectedColorHex: String = "#f43f5e"
     @Published public var isConnectedToTV: Bool = true
@@ -15,7 +15,7 @@ public final class CompanionBuzzerViewModel: ObservableObject {
     @Published public var isLockedIn: Bool = false
     @Published public var roomCode: String = "PUB-4K"
     
-    public var playerId: String = "player-sarah"
+    public var playerId: String = "player-mobile"
     
     public let availableAvatars = ["sparkles", "bolt.fill", "flame.fill", "star.fill", "heart.fill", "gamecontroller.fill"]
     public let availableColors = ["#f43f5e", "#0ea5e9", "#eab308", "#a855f7", "#10b981", "#ec4899"]
@@ -36,9 +36,26 @@ public final class CompanionBuzzerViewModel: ObservableObject {
         browser.startBrowsingForPeers()
     }
     
+    public func updateLiveNameDraft(name: String, avatar: String, colorHex: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        self.playerName = trimmed
+        self.selectedAvatar = avatar
+        self.selectedColorHex = colorHex
+        
+        let player = Player(
+            id: self.playerId,
+            name: trimmed,
+            avatarIcon: avatar,
+            colorHex: colorHex,
+            controllerType: .companionPhone
+        )
+        TriviaSyncManager.shared.broadcast(payload: .playerJoin(player: player))
+    }
+    
     public func joinRoom(name: String, avatar: String, colorHex: String) {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let finalName = trimmed.isEmpty ? "Living Room Champ" : trimmed
+        let finalName = trimmed.isEmpty ? "Player" : trimmed
         self.playerName = finalName
         self.selectedAvatar = avatar
         self.selectedColorHex = colorHex

@@ -261,12 +261,13 @@ public final class TVTriviaGameViewModel: ObservableObject {
     private func handleRemotePayload(_ payload: TriviaSyncPayload) {
         switch payload {
         case .playerJoin(let player):
-            if let idx = players.firstIndex(where: { $0.id == player.id || ($0.id == "player-sarah" && player.controllerType == .companionPhone) }) {
+            if let idx = players.firstIndex(where: { $0.id == player.id || $0.controllerType == .companionPhone }) {
+                players[idx].id = player.id
                 players[idx].name = player.name
                 players[idx].avatarIcon = player.avatarIcon
                 players[idx].colorHex = player.colorHex
                 audioEngine.play(.buzzerLocked)
-                showToast("👋 \(player.name) joined on iPhone!", colorHex: player.colorHex)
+                showToast("👋 \(player.name) synced on iPhone!", colorHex: player.colorHex)
             } else {
                 players.append(player)
                 audioEngine.play(.buzzerLocked)

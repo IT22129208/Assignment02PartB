@@ -118,6 +118,39 @@ public struct LobbyView: View {
                             .background(Color.white.opacity(0.06))
                             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                         }
+                        
+                        if viewModel.players.count == 1 {
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    Circle()
+                                        .strokeBorder(Color.cyan.opacity(0.6), style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
+                                        .frame(width: 52, height: 52)
+                                    
+                                    Image(systemName: "iphone.radiowaves.left.and.right")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(.cyan)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Waiting for iPhone...")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(.white.opacity(0.8))
+                                    
+                                    Text("Type your name in the mobile app")
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(.cyan.opacity(0.8))
+                                }
+                                
+                                Spacer()
+                            }
+                            .padding(16)
+                            .background(Color.cyan.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
+                            )
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity)
