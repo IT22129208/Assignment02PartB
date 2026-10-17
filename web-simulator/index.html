@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>TriviaNight TV: The Living Room Pub Quiz (Apple tvOS 10-Foot Experience)</title>
   <meta name="description" content="TriviaNight TV is a multiplayer trivia pub quiz application designed for the Apple TV with simultaneous multi-user controllers, FocusEngine grid navigation, countdown speed scoring, and paired iPhone buzzers.">
+  <link rel="icon" type="image/jpeg" href="assets/logo_256.jpg">
+  <link rel="apple-touch-icon" href="assets/logo.jpg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#09090b">
   <link rel="stylesheet" href="styles/tvos-core.css">
   <link rel="stylesheet" href="styles/remote.css">
   <link rel="stylesheet" href="styles/companion.css">
@@ -80,7 +85,7 @@
 
         <div class="companion-header">
           <div class="companion-status-row">
-            <img src="assets/logo.jpg" alt="Logo" class="c-mini-logo" />
+            <img src="assets/logo_256.jpg" alt="TriviaNight Logo" class="c-mini-logo" onerror="this.src='assets/logo.jpg'" />
             <span class="conn-dot"></span>
             <span class="conn-text" id="companion-conn-text">Apple TV Synced</span>
           </div>
@@ -90,7 +95,7 @@
         <!-- Pre-Game: Enter Name & Pick Avatar View -->
         <div id="companion-join-view" class="companion-join-view">
           <div class="c-join-header">
-            <img src="assets/logo.jpg" alt="TriviaNight TV Companion Logo" class="c-phone-logo" />
+            <img src="assets/logo_256.jpg" alt="TriviaNight TV Companion Logo" class="c-phone-logo" onerror="this.src='assets/logo.jpg'" />
             <h3>Join Game on TV</h3>
             <p>Enter your nickname to appear on the living room screen</p>
           </div>
@@ -131,6 +136,14 @@
 
         <!-- In-Game: Active Buzzer View -->
         <div id="companion-buzzer-view" class="companion-buzzer-view" style="display: none;">
+          <div class="c-buzzer-brand-banner">
+            <img src="assets/logo_256.jpg" alt="TriviaNight Logo" class="c-buzzer-brand-logo" onerror="this.src='assets/logo.jpg'" />
+            <div class="c-buzzer-brand-info">
+              <span class="c-buzzer-title">TRIVIANIGHT TV</span>
+              <span class="c-buzzer-sub">Live Pub Quiz Buzzer • Room PUB-4K</span>
+            </div>
+          </div>
+
           <div class="companion-player-card">
             <div id="companion-player-avatar" class="c-avatar">✨</div>
             <div class="c-meta">

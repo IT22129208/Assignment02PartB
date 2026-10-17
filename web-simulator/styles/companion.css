@@ -9,6 +9,7 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .iphone-screen {
@@ -17,9 +18,23 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
-  min-height: 600px;
-  overflow: hidden;
+  min-height: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+
+.iphone-screen::-webkit-scrollbar {
+  width: 4px;
+}
+
+.iphone-screen::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
 }
 
 /* Dynamic Island */
@@ -163,17 +178,21 @@
 .companion-join-view {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   flex: 1;
 }
 
+.c-join-header {
+  text-align: center;
+}
+
 .c-phone-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   border: 1.5px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.35);
-  margin: 0 auto 10px auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 158, 11, 0.35);
+  margin: 0 auto 6px auto;
   display: block;
   object-fit: cover;
 }
@@ -187,15 +206,16 @@
 }
 
 .c-join-header h3 {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   color: #ffffff;
+  margin: 0;
 }
 
 .c-join-header p {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-top: 2px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 3px;
 }
 
 .c-input-group label, .c-avatar-picker label {
@@ -252,15 +272,56 @@
   color: #000;
   font-size: 15px;
   font-weight: 800;
-  padding: 14px;
+  padding: 13px;
   border-radius: 14px;
   cursor: pointer;
-  margin-top: auto;
-  transition: transform 0.15s ease;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(234, 179, 8, 0.35);
 }
 
 .c-join-btn:active {
   transform: scale(0.96);
+}
+
+/* Active Buzzer Game Logo Banner */
+.c-buzzer-brand-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.c-buzzer-brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.c-buzzer-brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.c-buzzer-title {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  color: #ffffff;
+}
+
+.c-buzzer-sub {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .c-edit-profile-btn {
@@ -388,7 +449,7 @@
   font-weight: 600;
 }
 
-/* View Mode Styling */
+/* View Mode & Responsive Mobile Rules */
 body.mode-tv .companion-frame-wrapper {
   display: none !important;
 }
@@ -404,14 +465,110 @@ body.mode-mobile .remote-widget-container {
   display: none !important;
 }
 
-body.mode-mobile .companion-frame-wrapper {
-  margin: 20px auto !important;
-  width: 360px !important;
-  box-shadow: 0 0 50px rgba(56, 189, 248, 0.25);
+body.mode-mobile .simulator-layout {
+  padding: 0 !important;
+  margin: 0 !important;
+  justify-content: center !important;
 }
 
-body.mode-mobile .simulator-layout {
-  justify-content: center !important;
+body.mode-mobile .companion-frame-wrapper {
+  margin: 10px auto !important;
+  width: 100% !important;
+  max-width: 420px !important;
+  padding: 0 10px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  box-sizing: border-box !important;
+}
+
+body.mode-mobile .iphone-screen {
+  border-radius: 20px !important;
+  padding: 14px 14px max(20px, env(safe-area-inset-bottom, 16px)) 14px !important;
+  min-height: calc(100dvh - 75px) !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.mode-mobile .iphone-island {
+  display: none !important;
+}
+
+body.mode-mobile .c-join-btn {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 25 !important;
+  margin-top: 12px !important;
+  padding: 14px !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(234, 179, 8, 0.45) !important;
+}
+
+/* Screen width <= 768px (Physical phones & small screens) */
+@media (max-width: 768px) {
+  .simulator-top-bar {
+    padding: 8px 12px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .sim-brand-text {
+    font-size: 11px !important;
+  }
+
+  .sim-mode-toggle {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .sim-real-device-hint {
+    display: none !important;
+  }
+
+  body.mode-split .tv-frame-wrapper,
+  body.mode-split .remote-widget-container {
+    display: none !important;
+  }
+
+  .simulator-layout {
+    padding: 8px !important;
+    justify-content: center !important;
+  }
+
+  .companion-frame-wrapper {
+    width: 100% !important;
+    max-width: 420px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  .iphone-screen {
+    border-radius: 20px !important;
+    padding: 14px 14px max(20px, env(safe-area-inset-bottom, 16px)) 14px !important;
+    min-height: calc(100dvh - 100px) !important;
+    max-height: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .iphone-island {
+    display: none !important;
+  }
+
+  .c-join-btn {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 25 !important;
+    margin-top: 12px !important;
+    padding: 14px !important;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(234, 179, 8, 0.45) !important;
+  }
 }
 
 /* TV Player Pill Live Highlight when typing on mobile */

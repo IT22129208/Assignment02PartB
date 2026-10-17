@@ -273,6 +273,9 @@ fileprivate struct TriviaLogoBadge: View {
     }
     
     private func loadLogoImage() -> UIImage? {
+        if let image = TriviaLogoAsset.makeImage() {
+            return image
+        }
         if let path = Bundle.main.path(forResource: "logo", ofType: "jpg"),
            let img = UIImage(contentsOfFile: path) {
             return img

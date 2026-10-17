@@ -1,4 +1,5 @@
 import SwiftUI
+import TriviaNightTV
 
 public struct CompanionBuzzerView: View {
     @StateObject private var viewModel = CompanionBuzzerViewModel()
@@ -17,12 +18,13 @@ public struct CompanionBuzzerView: View {
     
     public var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            VStack(spacing: 0) {
                 // Header Connection Banner
                 connectionHeader
+                    .padding(.bottom, 12)
                 
                 if !viewModel.hasJoined {
-                    // Profile & Name Entry Screen
+                    // Profile & Name Entry Screen (Scrollable so join button is never hidden)
                     joinProfileForm
                 } else {
                     // Active Buzzer Screen
@@ -76,131 +78,135 @@ public struct CompanionBuzzerView: View {
     
     @ViewBuilder
     private var joinProfileForm: some View {
-        VStack(spacing: 20) {
-            VStack(spacing: 8) {
-                TriviaLogoBadge(size: 64)
-                
-                Text("Join Trivia Night")
-                    .font(.system(size: 26, weight: .black, design: .rounded))
-                    .foregroundColor(.white)
-                
-                Text("Enter your name to appear on the living room TV screen")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.white.opacity(0.6))
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.top, 4)
-            
-            // Name Input Field
-            VStack(alignment: .leading, spacing: 8) {
-                Text("PLAYER NICKNAME")
-                    .font(.system(size: 11, weight: .heavy, design: .monospaced))
-                    .foregroundColor(.cyan)
-                
-                HStack {
-                    Image(systemName: "person.fill")
-                        .foregroundColor(.white.opacity(0.5))
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 18) {
+                VStack(spacing: 8) {
+                    TriviaLogoBadge(size: 64)
                     
-                    TextField("Enter your name (e.g. Alex)", text: $localName)
-                        .font(.system(size: 18, weight: .bold))
+                    Text("Join Trivia Night")
+                        .font(.system(size: 24, weight: .black, design: .rounded))
                         .foregroundColor(.white)
-                        .autocorrectionDisabled()
                     
-                    if !localName.isEmpty {
-                        Button(action: { localName = "" }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.white.opacity(0.4))
-                        }
-                    }
+                    Text("Enter your name to appear on the living room TV screen")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.65))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
                 }
-                .padding(14)
-                .background(Color.white.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                )
-            }
-            .padding(.horizontal)
-            
-            // Avatar Selector
-            VStack(alignment: .leading, spacing: 8) {
-                Text("CHOOSE AVATAR")
-                    .font(.system(size: 11, weight: .heavy, design: .monospaced))
-                    .foregroundColor(.yellow)
+                .padding(.top, 2)
                 
-                HStack(spacing: 12) {
-                    ForEach(viewModel.availableAvatars, id: \.self) { avatar in
-                        Button(action: {
-                            localAvatar = avatar
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(localAvatar == avatar ? Color(hex: localColorHex) : Color.white.opacity(0.08))
-                                    .frame(width: 44, height: 44)
-                                
-                                Image(systemName: avatar)
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(localAvatar == avatar ? .black : .white)
+                // Name Input Field
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("PLAYER NICKNAME")
+                        .font(.system(size: 11, weight: .heavy, design: .monospaced))
+                        .foregroundColor(.cyan)
+                    
+                    HStack {
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.white.opacity(0.5))
+                        
+                        TextField("Enter your name (e.g. Alex)", text: $localName)
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundColor(.white)
+                            .autocorrectionDisabled()
+                        
+                        if !localName.isEmpty {
+                            Button(action: { localName = "" }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.white.opacity(0.4))
                             }
-                            .overlay(
-                                Circle()
-                                    .stroke(localAvatar == avatar ? Color.white : Color.clear, lineWidth: 2)
-                            )
                         }
                     }
+                    .padding(13)
+                    .background(Color.white.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
                 }
-            }
-            .padding(.horizontal)
-            
-            // Color Selector
-            VStack(alignment: .leading, spacing: 8) {
-                Text("BUZZER COLOR")
-                    .font(.system(size: 11, weight: .heavy, design: .monospaced))
-                    .foregroundColor(.orange)
+                .padding(.horizontal)
                 
-                HStack(spacing: 12) {
-                    ForEach(viewModel.availableColors, id: \.self) { colorHex in
-                        Button(action: {
-                            localColorHex = colorHex
-                        }) {
-                            Circle()
-                                .fill(Color(hex: colorHex))
-                                .frame(width: 36, height: 36)
+                // Avatar Selector
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("CHOOSE AVATAR")
+                        .font(.system(size: 11, weight: .heavy, design: .monospaced))
+                        .foregroundColor(.yellow)
+                    
+                    HStack(spacing: 10) {
+                        ForEach(viewModel.availableAvatars, id: \.self) { avatar in
+                            Button(action: {
+                                localAvatar = avatar
+                            }) {
+                                ZStack {
+                                    Circle()
+                                        .fill(localAvatar == avatar ? Color(hex: localColorHex) : Color.white.opacity(0.08))
+                                        .frame(width: 42, height: 42)
+                                    
+                                    Image(systemName: avatar)
+                                        .font(.system(size: 17, weight: .bold))
+                                        .foregroundColor(localAvatar == avatar ? .black : .white)
+                                }
                                 .overlay(
                                     Circle()
-                                        .stroke(localColorHex == colorHex ? Color.white : Color.clear, lineWidth: 3)
+                                        .stroke(localAvatar == avatar ? Color.white : Color.clear, lineWidth: 2)
                                 )
-                                .scaleEffect(localColorHex == colorHex ? 1.15 : 1.0)
+                            }
                         }
                     }
                 }
-            }
-            .padding(.horizontal)
-            
-            Spacer()
-            
-            // Join Button
-            Button(action: {
-                let nameToUse = localName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Guest Player" : localName
-                viewModel.joinRoom(name: nameToUse, avatar: localAvatar, colorHex: localColorHex)
-            }) {
-                HStack(spacing: 10) {
-                    Text("Join Game on TV 🚀")
-                    Image(systemName: "tv.fill")
+                .padding(.horizontal)
+                
+                // Color Selector
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("BUZZER COLOR")
+                        .font(.system(size: 11, weight: .heavy, design: .monospaced))
+                        .foregroundColor(.orange)
+                    
+                    HStack(spacing: 12) {
+                        ForEach(viewModel.availableColors, id: \.self) { colorHex in
+                            Button(action: {
+                                localColorHex = colorHex
+                            }) {
+                                Circle()
+                                    .fill(Color(hex: colorHex))
+                                    .frame(width: 34, height: 34)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(localColorHex == colorHex ? Color.white : Color.clear, lineWidth: 3)
+                                    )
+                                    .scaleEffect(localColorHex == colorHex ? 1.15 : 1.0)
+                            }
+                        }
+                    }
                 }
-                .font(.system(size: 18, weight: .heavy))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(
-                    LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
-                )
-                .foregroundColor(.black)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .padding(.horizontal)
+                
+                // Join Button (Prominently styled, always reachable)
+                Button(action: {
+                    let nameToUse = localName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Guest Player" : localName
+                    viewModel.joinRoom(name: nameToUse, avatar: localAvatar, colorHex: localColorHex)
+                }) {
+                    HStack(spacing: 10) {
+                        Text("Join Game on TV 🚀")
+                        Image(systemName: "tv.fill")
+                    }
+                    .font(.system(size: 17, weight: .heavy))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+                    .background(
+                        LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
+                    )
+                    .foregroundColor(.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+                    .shadow(color: Color.orange.opacity(0.35), radius: 8, x: 0, y: 4)
+                }
+                .padding(.horizontal)
+                .padding(.top, 10)
+                .padding(.bottom, 24)
             }
-            .padding(.horizontal)
-            .padding(.bottom, 20)
         }
+        .scrollDismissesKeyboard(.interactively)
     }
     
     @ViewBuilder
@@ -386,6 +392,9 @@ fileprivate struct TriviaLogoBadge: View {
     }
     
     private func loadLogoImage() -> UIImage? {
+        if let image = TriviaLogoAsset.makeImage() {
+            return image
+        }
         if let path = Bundle.main.path(forResource: "logo", ofType: "jpg"),
            let img = UIImage(contentsOfFile: path) {
             return img

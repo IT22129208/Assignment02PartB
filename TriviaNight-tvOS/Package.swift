@@ -25,13 +25,17 @@ let package = Package(
             name: "TriviaNightTV",
             dependencies: [],
             path: "Sources/TriviaNightTV",
-            resources: []
+            resources: [
+                .process("Resources")
+            ]
         ),
         .target(
             name: "TriviaNightCompanion",
             dependencies: ["TriviaNightTV"],
             path: "Sources/TriviaNightCompanion",
-            resources: []
+            resources: [
+                .process("Resources")
+            ]
         )
     ]
 )
